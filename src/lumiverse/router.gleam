@@ -9,6 +9,7 @@ import lumiverse/models/series
 import lumiverse/layout
 import lumiverse/pages/home
 //import lumiverse/pages/blog
+import lumiverse/pages/auth
 import lumiverse/pages/not_found
 import lumiverse/pages/series as series_page
 
@@ -22,6 +23,9 @@ pub fn handle_request(req: Request) -> Response {
 	)
 	case wisp.path_segments(req) {
 		[] -> create_page(home.page())
+
+		// Auth
+		["login"] -> auth.page(auth.login())
 
 		["series", id] -> create_page(series_page.page(dosanko))
 

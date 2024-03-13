@@ -2,6 +2,8 @@ import lustre/attribute.{attribute}
 import lustre/element
 import lustre/element/html
 
+import lumiverse/config
+
 pub fn head() -> element.Element(Nil) {
 	html.head([], [
 		html.meta([
@@ -37,8 +39,8 @@ pub fn nav() -> element.Element(Nil) {
 					html.li([], [
 						html.a([attribute.href("/")], [
 							html.img([
-								attribute.src("https://gleam.run/images/lucy/lucy.svg"),
-								attribute.class("nav-logo")
+								attribute.src(config.logo()),
+								attribute.class("logo")
 							])
 						])
 					]),
