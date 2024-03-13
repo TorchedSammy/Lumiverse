@@ -2,6 +2,7 @@ import lustre/attribute
 import lustre/element
 import lustre/element/html
 
+import lumiverse/elements/tags
 import lumiverse/models/series
 
 pub fn page(srs: series.Series) -> element.Element(Nil) {
@@ -42,7 +43,16 @@ pub fn page(srs: series.Series) -> element.Element(Nil) {
 						html.button([attribute.class("secondary")], [
 							html.span([attribute.class("icon-star-o")], [])
 						]),
-					])
+					]),
+					html.div([attribute.class("grid"), attribute.style([
+						#("display", "inline-flex")
+					])],
+						tags.multiple([
+							"Suggestive",
+							"Comedy",
+							"Romantic Subtext",
+						])
+					)
 				])
 			]),
 		])

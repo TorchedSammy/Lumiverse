@@ -40,12 +40,17 @@ pub fn nav() -> element.Element(Nil) {
 						])
 					]),
 					html.li([], [
-						html.a([attribute.href("/blog")], [element.text("Blog")])
+						//html.a([attribute.href("/blog")], [element.text("Blog")])
 					])
 				]),
 				html.ul([], [
 					html.li([], [
-						html.button([], [element.text("Contact")])
+						html.details([attribute.class("dropdown")], [
+							html.summary([], [element.text("sammy")]),
+							html.ul([], [
+								html.li([], [element.text("Bookmarks")])
+							])
+						])
 					])
 				])
 			])
