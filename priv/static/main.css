@@ -1,0 +1,146 @@
+:root {
+	--primary: #866eff;
+	--primary-lighter: #a896ff;
+	--border-color: rgba(32, 38, 50, .9);
+	--brand-gradient: linear-gradient(to right, #b8cbb8 0%, #b8cbb8 0%, #b465da 0%, #cf6cc9 33%, #ee609c 66%, #ee609c 100%);
+
+	--background-primary-rgba: 19, 23, 31;
+	--background-primary: rgba(var(--background-primary-rgba), 1);
+
+	--pico-primary: var(--primary);
+	--pico-primary-background: var(--primary);
+	--pico-primary-border: var(--primary);
+	--pico-primary-hover-background: var(--primary-lighter);
+}
+
+header {
+	background-color: var(--background-primary);
+	transition: backdrop-filter 0.2s ease-in-out, box-shadow 0.2s ease-in-out, background-color 0.2 ease-in-out;
+	z-index: 1;
+}
+
+html:not([data-scroll='0']) header {
+	border-bottom: var(--primary) var(--pico-border-width) solid;
+	backdrop-filter: blur(5px);
+	box-shadow: var(--pico-box-shadow);
+	background-color: rgba(var(--background-primary-rgba), 0.9);
+}
+
+.fixed-top {
+	position: sticky;
+	top: 0;
+}
+
+.nav-logo {
+	width: auto;
+	height: 2.25em;
+}
+
+.hero {
+	text-align: center;
+}
+
+.hero h1 {
+	font-size: 4rem;
+}
+
+.hero h2 {
+	font-size: 3rem;
+}
+
+.gradient {
+	background-image: var(--brand-gradient);
+	background-clip: text;
+	color: transparent;
+	background-size: 500% auto;
+	animation: textShine 5s ease-in-out infinite alternate;
+}
+
+@keyframes textShine {
+    0% {
+        background-position: 0% 50%;
+    }
+    100% {
+        background-position: 100% 50%;
+    }
+}
+
+.blog-card {
+	height: 14rem;
+	object-fit: cover;
+	background-size: cover;
+	background-position: center;
+}
+
+footer {
+	/* Make it stick to the bottom */
+	left: 0;
+	bottom: 0;
+	width: 100%;
+	/* ^^ */
+
+	border-top: var(--border-color) var(--pico-border-width) solid;
+	background-color: var(--pico-header-background);
+}
+
+.flex {
+	display: flex;
+	flex-direction: column;
+}
+
+.grid {
+	align-items: start;
+}
+
+.col-1 {
+	grid-template-columns: 1fr;
+}
+
+.gy-0 {
+	grid-row-gap: 0;
+}
+
+.mb-0 {
+	margin-bottom: 0;
+}
+
+/* Series Cards */
+.series-card {
+	width: 10rem;
+	display: inline-block;
+}
+
+.series-card header {
+	padding: 0;
+	overflow: hidden;
+}
+
+.series-card .title {
+	font-size: 0.8rem;
+}
+
+.series-card img {
+	overflow: hidden;
+	object-fit: cover;
+}
+
+/* Series Page */
+.series-bg-image {
+	background-size: cover;
+	width: 100%;
+	position: fixed;
+	top: 0;
+	left: 0;
+	height: 15rem;
+	z-index: -1;
+}
+
+.series-page .seethrough {
+	height: 12vh;
+	position: fixed;
+	top: 0;
+}
+
+.series-page img {
+	width: 10rem;
+}
