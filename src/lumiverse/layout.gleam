@@ -5,6 +5,9 @@ import lustre/element/html
 pub fn head() -> element.Element(Nil) {
 	html.head([], [
 		html.meta([
+			attribute.attribute("charset", "UTF-8")
+		]),
+		html.meta([
 			attribute.name("viewport"),
 			attribute.attribute("content", "width=device-width, initial-scale=1.0")
 		]),

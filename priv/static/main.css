@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap');
+
 :root {
 	--primary: #866eff;
 	--primary-lighter: #a896ff;
@@ -36,56 +38,18 @@ html:not([data-scroll='0']) header {
 	height: 2.25em;
 }
 
-.hero {
-	text-align: center;
+h1, h2, h3, h4, h5, h6, span {
+	font-family: 'Poppins', sans-serif;
+	font-weight: bold;
 }
 
-.hero h1 {
-	font-size: 4rem;
-}
-
-.hero h2 {
-	font-size: 3rem;
-}
-
-.gradient {
-	background-image: var(--brand-gradient);
-	background-clip: text;
-	color: transparent;
-	background-size: 500% auto;
-	animation: textShine 5s ease-in-out infinite alternate;
-}
-
-@keyframes textShine {
-    0% {
-        background-position: 0% 50%;
-    }
-    100% {
-        background-position: 100% 50%;
-    }
-}
-
-.blog-card {
-	height: 14rem;
-	object-fit: cover;
-	background-size: cover;
-	background-position: center;
-}
-
-footer {
-	/* Make it stick to the bottom */
-	left: 0;
-	bottom: 0;
-	width: 100%;
-	/* ^^ */
-
-	border-top: var(--border-color) var(--pico-border-width) solid;
-	background-color: var(--pico-header-background);
+p {
+	font-family: 'Poppins', sans-serif;
 }
 
 .flex {
 	display: flex;
-	flex-direction: column;
+	flex-wrap: wrap;
 }
 
 .grid {
@@ -93,6 +57,7 @@ footer {
 }
 
 .col-1 {
+	flex-direction: column;
 	grid-template-columns: 1fr;
 }
 
@@ -144,4 +109,23 @@ footer {
 
 .series-page img {
 	width: 10rem;
+}
+
+.ico-gap {
+	display: flex;
+	gap: 0.4em;
+	align-items: baseline;
+}
+
+.publication {
+	font-size: calc(10px + 0.2vmin);
+	text-transform: uppercase;
+	font-weight: bold;
+	font-family: 'Poppins', sans-serif;
+}
+
+.info-extras {
+	column-gap: 1rem;
+	max-width: 400px;
+	row-gap: 0.4rem;
 }
