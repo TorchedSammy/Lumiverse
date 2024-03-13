@@ -2,8 +2,9 @@ import lustre/attribute
 import lustre/element
 import lustre/element/html
 
-import lumiverse/elements/tagbadge
 import lumiverse/models/series
+import lumiverse/elements/tagbadge
+import lumiverse/elements/chapter
 
 pub fn page(srs: series.Series) -> element.Element(Nil) {
 	html.main([attribute.class("container series-page")], [
@@ -77,10 +78,22 @@ pub fn page(srs: series.Series) -> element.Element(Nil) {
 				is braving negative 8 degree weather in the standard gyaru outfit of short skirts and bare legs!")
 			])
 		]),
-		html.div([attribute.class("flex info-extras")], [
-			tagbadge.badges_title("Author", ["Ikada Kai"]),
-			tagbadge.badges_title("Artist", ["Ikada Kai"]),
-			tagbadge.badges_title("Genres", ["Comedy", "Drama", "Slice of Life", "Romance"]),
-		]),
+		html.div([attribute.class("grid")], [
+			html.div([attribute.class("flex info-extras")], [
+				tagbadge.badges_title("Author", ["Ikada Kai"]),
+				tagbadge.badges_title("Artist", ["Ikada Kai"]),
+				tagbadge.badges_title("Genres", ["Comedy", "Drama", "Slice of Life", "Romance"]),
+			]),
+			html.div([], [
+				html.h3([], [element.text("Chapters")]),
+				html.div([attribute.class("flex col-1")], [
+					chapter.card(series.Chapter(
+						name: "Chapter 1",
+						id: "chapter-1",
+						image: ""
+					))
+				])
+			])
+		])
 	])
 }
