@@ -1,9 +1,11 @@
+import gleam/option
 import lustre/attribute.{attribute}
 import lustre/element
 import lustre/element/html
 
-import lumiverse/router
+import lumiverse/api/api
 import lumiverse/config
+import lumiverse/models/router
 import lumiverse/models/auth
 
 pub type Msg {
@@ -38,7 +40,7 @@ pub fn head() -> element.Element(a) {
 	])
 }
 
-pub fn nav() -> element.Element(a) {
+pub fn nav(user: option.Option(api.User)) -> element.Element(a) {
 	html.header([attribute.class("fixed-top")], [
 		html.div([attribute.class("container")], [
 			html.nav([], [
@@ -46,7 +48,7 @@ pub fn nav() -> element.Element(a) {
 					html.li([], [
 						html.a([attribute.href("/")], [
 							html.img([
-								attribute.src(config.logo()),
+								//attribute.src(config.logo()),
 								attribute.class("logo")
 							])
 						])
@@ -60,7 +62,11 @@ pub fn nav() -> element.Element(a) {
 						html.details([attribute.class("dropdown")], [
 							html.summary([], [element.text("sammy")]),
 							html.ul([], [
-								html.li([], [element.text("Bookmarks")])
+								html.li([], [element.text("Bookmarks")]),
+								case user {
+									option.Some(user) -> todo as "i didnt anticipate this!?"
+									option.None -> html.a([attribute.href("/login"), attribute.role("button")], [element.text("login")])
+								}
 							])
 						])
 					])
