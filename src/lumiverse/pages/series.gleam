@@ -2,11 +2,12 @@ import lustre/attribute
 import lustre/element
 import lustre/element/html
 
+import lumiverse/layout
 import lumiverse/models/series
 import lumiverse/elements/tagbadge
 import lumiverse/elements/chapter
 
-pub fn page(srs: series.Series) -> element.Element(Nil) {
+pub fn page(srs: series.Series) -> element.Element(layout.Msg) {
 	html.main([attribute.class("container series-page")], [
 		html.div([], [
 			html.div([attribute.class("series-bg-image"), attribute.style([
@@ -40,7 +41,10 @@ pub fn page(srs: series.Series) -> element.Element(Nil) {
 					html.div([attribute.class("grid"), attribute.style([
 						#("display", "inline-flex")
 					])], [
-						html.button([], [element.text("Start Reading")]),
+						html.a([
+							attribute.role("button"),
+							attribute.href("/series"),
+						], [element.text("Start Reading")]),
 						html.button([attribute.class("secondary")], [
 							html.span([attribute.class("icon-star-o")], [])
 						]),
@@ -87,7 +91,7 @@ pub fn page(srs: series.Series) -> element.Element(Nil) {
 			html.div([], [
 				html.h3([], [element.text("Chapters")]),
 				html.div([attribute.class("flex col-1")], [
-					chapter.card(series.Chapter(
+					chapter.card(srs, series.Chapter(
 						name: "Chapter 1",
 						id: "chapter-1",
 						image: ""

@@ -2,9 +2,16 @@ import lustre/attribute.{attribute}
 import lustre/element
 import lustre/element/html
 
+import lumiverse/router
 import lumiverse/config
+import lumiverse/models/auth
 
-pub fn head() -> element.Element(Nil) {
+pub type Msg {
+	Router(router.Msg)
+	AuthPage(auth.Msg)
+}
+
+pub fn head() -> element.Element(a) {
 	html.head([], [
 		html.meta([
 			attribute.attribute("charset", "UTF-8")
@@ -31,7 +38,7 @@ pub fn head() -> element.Element(Nil) {
 	])
 }
 
-pub fn nav() -> element.Element(Nil) {
+pub fn nav() -> element.Element(a) {
 	html.header([attribute.class("fixed-top")], [
 		html.div([attribute.class("container")], [
 			html.nav([], [
@@ -63,7 +70,7 @@ pub fn nav() -> element.Element(Nil) {
 	])
 }
 
-pub fn footer() -> element.Element(Nil) {
+pub fn footer() -> element.Element(a) {
 	html.footer([], [
 		html.div([attribute.class("container")], [
 			html.h1([], [element.text("hi")])

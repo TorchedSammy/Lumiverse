@@ -2,11 +2,14 @@ import lustre/attribute
 import lustre/element
 import lustre/element/html
 
+import lumiverse/layout
 import lumiverse/models/series
 
-pub fn card(chp: series.Series) -> element.Element(Nil) {
+pub fn card(srs: series.Series, chp: series.Series) -> element.Element(layout.Msg) {
 	html.article([attribute.class("chapter")], [
-		html.span([], [
+		html.span([
+			attribute.href("/series/" <> srs.name <> "/" <> "/chapter/" <> chp.id)
+		], [
 			element.text(chp.name)
 		])
 	])
