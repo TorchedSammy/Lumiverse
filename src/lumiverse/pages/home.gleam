@@ -7,16 +7,20 @@ import lumiverse/elements/series
 import lumiverse/models/series as series_model
 
 pub fn page() -> element.Element(layout.Msg) {
-	let dosanko = series_model.Manga(
-		id: "dosanko-gal-wa-namaramenkoi",
-		name: "Hokkaido Gals Are Super Adorable!",
-		image: "https://lumiverse.sammyette.party/api/image/series-cover?seriesId=289&apiKey=7c3bb00c-629e-4829-8c50-7dd3b73fc846"
-	)
+	let frieren = series_model.Manga(
+						id: "sousou-no-frieren",
+						name: "Sousou no Frieren",
+						image: "https://mangadex.org/covers/b0b721ff-c388-4486-aa0f-c2b0bb321512/425098a9-e052-4fea-921d-368252ad084e.jpg",
+						artists: ["Abe Tsukasa"],
+						authors: ["Yamada Kanehito"],
+						description: "",
+						genres: ["Adventure", "Drama", "Fantasy", "Slice of Life"]
+					)
 
 	html.main([attribute.class("container")], [
 		html.section([], [
 			html.h1([], [element.text("Latest Updates")]),
-			series.card(dosanko)
+			series.card(frieren)
 		])
 	])
 }

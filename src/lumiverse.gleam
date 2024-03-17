@@ -18,6 +18,7 @@ import lumiverse/models/router
 import lumiverse/layout
 import lumiverse/pages/home
 import lumiverse/pages/series as series_page
+import lumiverse/pages/auth
 
 pub fn main() {
 	let app = lustre.application(init, update, view)
@@ -56,19 +57,23 @@ fn update(model: Model, msg: layout.Msg) -> #(Model, Effect(layout.Msg)) {
 fn view(model: Model) -> Element(layout.Msg) {
 	let page = case model.route {
 		router.Home -> home.page()
-		router.Login -> element.text("At Login!")
+		router.Login -> auth.login()
 		router.Series(id) -> {
 			// this is just a test case,
 			// on request series should be fetched from kavita
 			case id {
-				"dosanko-gal-wa-namaramenkoi" -> {
-					let dosanko = series_model.Manga(
-						id: "dosanko-gal-wa-namaramenkoi",
-						name: "Hokkaido Gals Are Super Adorable!",
-						image: "https://lumiverse.sammyette.party/api/image/series-cover?seriesId=289&apiKey=7c3bb00c-629e-4829-8c50-7dd3b73fc846"
+				"sousou-no-frieren" -> {
+					let frieren = series_model.Manga(
+						id: "sousou-no-frieren",
+						name: "Sousou no Frieren",
+						image: "https://mangadex.org/covers/b0b721ff-c388-4486-aa0f-c2b0bb321512/425098a9-e052-4fea-921d-368252ad084e.jpg",
+						artists: ["Abe Tsukasa"],
+						authors: ["Yamada Kanehito"],
+						description: "",
+						genres: ["Adventure", "Drama", "Fantasy", "Slice of Life"]
 					)
 
-					series_page.page(dosanko)
+					series_page.page(frieren)
 				}
 				_ -> element.text("Not found!")
 			}

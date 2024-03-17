@@ -74,19 +74,14 @@ pub fn page(srs: series.Series) -> element.Element(layout.Msg) {
 		]),
 		html.div([], [
 			html.p([], [
-				element.text("Tsubasa Shiki has just moved from Tokyo to Hokkaido, in the middle of winter.
-				Not quite appreciating how far apart towns are in the country, he gets off the taxi at the
-				next town over from his destination so he can see the sights around his home.
-				But he is shocked when he learns the \"next town\" is a 3 hour walk away.
-				But he also meets a cute Dosanko (born and raised in Hokkaido) gyaru named Minami Fuyuki who
-				is braving negative 8 degree weather in the standard gyaru outfit of short skirts and bare legs!")
+				element.text(srs.description)
 			])
 		]),
 		html.div([attribute.class("grid")], [
 			html.div([attribute.class("flex info-extras")], [
-				tagbadge.badges_title("Author", ["Ikada Kai"]),
-				tagbadge.badges_title("Artist", ["Ikada Kai"]),
-				tagbadge.badges_title("Genres", ["Comedy", "Drama", "Slice of Life", "Romance"]),
+				tagbadge.badges_title("Author", srs.authors),
+				tagbadge.badges_title("Artist", srs.artists),
+				tagbadge.badges_title("Genres", srs.genres),
 			]),
 			html.div([], [
 				html.h3([], [element.text("Chapters")]),

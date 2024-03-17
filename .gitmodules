@@ -1,0 +1,3 @@
+[submodule "lustre"]
+	path = lustre
+	url = https://github.com/lustre-labs/lustre

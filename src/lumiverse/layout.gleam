@@ -65,7 +65,9 @@ pub fn nav(user: option.Option(api.User)) -> element.Element(a) {
 								html.li([], [element.text("Bookmarks")]),
 								case user {
 									option.Some(user) -> todo as "i didnt anticipate this!?"
-									option.None -> html.a([attribute.href("/login"), attribute.role("button")], [element.text("login")])
+									option.None -> html.a([
+										attribute.href("/login"), attribute.role("button")
+									], [element.text("Login")])
 								}
 							])
 						])

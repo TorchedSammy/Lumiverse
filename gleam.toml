@@ -16,7 +16,7 @@ target = "javascript"
 
 [dependencies]
 gleam_stdlib = "~> 0.34 or ~> 1.0"
-lustre = "~> 4.0.0-rc.2"
+lustre = { path = "./lustre" }
 gleam_http = "~> 3.6"
 gleam_erlang = "~> 0.24"
 juno = "~> 1.2"
