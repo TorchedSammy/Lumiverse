@@ -9,5 +9,4 @@ pub type Route {
 // Update Function with Routing
 pub type Msg {
 	ChangeRoute(route: Route)
-	NoOp
 }

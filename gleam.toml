@@ -16,13 +16,15 @@ target = "javascript"
 
 [dependencies]
 gleam_stdlib = "~> 0.34 or ~> 1.0"
-lustre = { path = "./lustre" }
 gleam_http = "~> 3.6"
 gleam_erlang = "~> 0.24"
 juno = "~> 1.2"
 gleam_fetch = "~> 0.4"
 gleam_json = "~> 1.0"
 lustre_http = "~> 0.5"
+lustre = "~> 4.1"
+modem = "~> 1.0"
 
 [dev-dependencies]
 gleeunit = "~> 1.0"
+lustre_dev_tools = "~> 1.1"

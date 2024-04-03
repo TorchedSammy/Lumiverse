@@ -54,6 +54,11 @@ export const init = (dispatch) => {
   });
 };
 
+export const get_current_href = () => {
+  const url = new URL(window.location.href);
+  return uri_from_url(url);
+}
+
 // UTILS -----------------------------------------------------------------------
 
 const find_anchor = (el) => {

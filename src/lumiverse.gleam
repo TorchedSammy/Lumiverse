@@ -8,6 +8,7 @@ import lustre/attribute
 import lustre/effect.{type Effect}
 import lustre/element.{type Element}
 import lustre/element/html
+import modem
 
 import localstorage
 import router as router_handler
@@ -43,14 +44,22 @@ fn init(_) {
 		Error(_) -> option.None
 	}
 	io.debug(user)
+	io.debug(get_route())
 
-	#(Model(router.Home, user), router_handler.init())
+	#(Model(router_handler.uri_to_route(get_route()), user), modem.init(on_url_change))
 }
+
+
+fn on_url_change(uri: uri.Uri) -> layout.Msg {
+	router_handler.uri_to_route(uri) |> router.ChangeRoute |> layout.Router
+}
+
+@external(javascript, "./router.ffi.mjs", "get_current_href")
+fn get_route() -> uri.Uri {}
 
 fn update(model: Model, msg: layout.Msg) -> #(Model, Effect(layout.Msg)) {
 	case msg {
 		layout.Router(router.ChangeRoute(route)) -> #(Model(route, model.user), effect.none())
-		layout.Router(router.NoOp) -> #(model, effect.none())
 		layout.AuthPage(auth_model.LoginSubmitted) -> {
 			io.println("submitted")
 			#(model, effect.none())
@@ -64,6 +73,7 @@ fn view(model: Model) -> Element(layout.Msg) {
 		router.Home -> home.page()
 		router.Login -> auth.login()
 		router.Series(id) -> {
+			io.println(id)
 			// this is just a test case,
 			// on request series should be fetched from kavita
 			case id {
