@@ -14,6 +14,7 @@ import router as router_handler
 
 import lumiverse/api/api
 import lumiverse/models/series as series_model
+import lumiverse/models/auth as auth_model
 import lumiverse/models/router
 import lumiverse/layout
 import lumiverse/pages/home
@@ -50,6 +51,10 @@ fn update(model: Model, msg: layout.Msg) -> #(Model, Effect(layout.Msg)) {
 	case msg {
 		layout.Router(router.ChangeRoute(route)) -> #(Model(route, model.user), effect.none())
 		layout.Router(router.NoOp) -> #(model, effect.none())
+		layout.AuthPage(auth_model.LoginSubmitted) -> {
+			io.println("submitted")
+			#(model, effect.none())
+		}
 		layout.AuthPage(_) -> #(model, effect.none())
 	}
 }
@@ -81,9 +86,11 @@ fn view(model: Model) -> Element(layout.Msg) {
 		router.NotFound -> element.text("Not found!")
 	}
 
-	html.div([], [
-		layout.nav(model.user),
-		page,
-		layout.footer()
-	])
+	case model.route {
+		router.Login -> page
+		_ -> html.div([], [
+			layout.nav(model.user),
+			page,
+		])
+	}
 }

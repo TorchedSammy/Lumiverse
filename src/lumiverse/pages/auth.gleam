@@ -37,7 +37,7 @@ pub fn login() -> element.Element(layout.Msg) {
 				html.a([attribute.href("/recover")], [element.text("Forgot Password?")])
 			]),
 			html.input([
-				attribute.attribute("type", "submit"),
+				attribute.attribute("type", "button"),
 				attribute.attribute("value", "Sign In"),
 				event.on_submit(layout.AuthPage(auth.LoginSubmitted))
 			])
