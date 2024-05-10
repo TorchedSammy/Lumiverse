@@ -21,6 +21,7 @@ import lumiverse/layout
 import lumiverse/pages/home
 import lumiverse/pages/series as series_page
 import lumiverse/pages/auth
+import lumiverse/pages/not_found
 
 pub fn main() {
 	let app = lustre.application(init, update, view)
@@ -90,14 +91,15 @@ fn view(model: Model) -> Element(layout.Msg) {
 
 					series_page.page(frieren)
 				}
-				_ -> element.text("Not found!")
+				_ -> not_found.page()
 			}
 		}
-		router.NotFound -> element.text("Not found!")
+		router.NotFound -> not_found.page()
 	}
 
 	case model.route {
 		router.Login -> page
+		router.NotFound -> page
 		_ -> html.div([], [
 			layout.nav(model.user),
 			page,
