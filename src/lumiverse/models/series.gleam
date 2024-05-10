@@ -1,4 +1,4 @@
-pub type Series {
+pub type Manga {
 	Manga(
 		name: String,
 		id: String,
@@ -6,9 +6,14 @@ pub type Series {
 		description: String,
 		authors: List(String),
 		artists: List(String),
-		genres: List(String)
+		genres: List(String),
+		tags: List(String),
+		publication: Publication
 	)
+}
 
+pub type Publication {
+	Ongoing
 }
 
 pub type Chapter {
@@ -17,4 +22,10 @@ pub type Chapter {
 		id: String,
 		image: String
 	)
+}
+
+pub fn publication_title(publication: Publication) -> String {
+	case publication {
+		Ongoing -> "ongoing"
+	}
 }

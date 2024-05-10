@@ -86,7 +86,9 @@ fn view(model: Model) -> Element(layout.Msg) {
 						artists: ["Abe Tsukasa"],
 						authors: ["Yamada Kanehito"],
 						description: "",
-						genres: ["Adventure", "Drama", "Fantasy", "Slice of Life"]
+						genres: ["Adventure", "Drama", "Fantasy", "Slice of Life"],
+						tags: [],
+						publication: series_model.Ongoing
 					)
 
 					series_page.page(frieren)

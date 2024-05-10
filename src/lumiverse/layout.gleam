@@ -41,38 +41,25 @@ pub fn head() -> element.Element(a) {
 }
 
 pub fn nav(user: option.Option(api.User)) -> element.Element(a) {
-	html.header([attribute.class("fixed-top")], [
-		html.div([attribute.class("container")], [
-			html.nav([], [
-				html.ul([], [
-					html.li([], [
-						html.a([attribute.href("/")], [
-							html.img([
-								//attribute.src(config.logo()),
-								attribute.class("logo")
-							])
-						])
-					]),
-					html.li([], [
-						//html.a([attribute.href("/blog")], [element.text("Blog")])
-					])
+	html.nav([attribute.class("navbar fixed-top navbar-expand-lg bg-body border-bottom border-primary")], [
+		html.div([attribute.class("container-fluid")], [
+			html.a([attribute.class("navbar-brand"), attribute.href("/")], [
+				html.img([
+					//attribute.src(config.logo()),
+					attribute.class("logo")
 				]),
-				html.ul([], [
-					html.li([], [
-						html.details([attribute.class("dropdown")], [
-							html.summary([], [element.text("sammy")]),
-							html.ul([], [
-								html.li([], [element.text("Bookmarks")]),
-								case user {
-									option.Some(user) -> todo as "i didnt anticipate this!?"
-									option.None -> html.a([
-										attribute.href("/login"), attribute.role("button")
-									], [element.text("Login")])
-								}
-							])
-						])
+				html.span([attribute.class("navbar-brand-text")], [element.text("Lumiverse")]),
+			]),
+			html.div([attribute.class("navbar-nav")], [
+				case user {
+					option.Some(user) -> todo as "make popup and login stuff lol"
+					option.None -> html.a([attribute.class("nav-link"), attribute.href("/login")], [
+						html.button([
+							attribute.attribute("type", "button"),
+							attribute.class("btn"),
+						], [element.text("Login")])
 					])
-				])
+				}
 			])
 		])
 	])

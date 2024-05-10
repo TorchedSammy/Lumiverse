@@ -1,13 +1,16 @@
+import gleam/list
+import gleam/string
+
 import lustre/attribute
 import lustre/element
 import lustre/element/html
 
 import lumiverse/layout
 import lumiverse/models/series
-import lumiverse/elements/tagbadge
+import lumiverse/elements/tag
 import lumiverse/elements/chapter
 
-pub fn page(srs: series.Series) -> element.Element(layout.Msg) {
+pub fn page(srs: series.Manga) -> element.Element(layout.Msg) {
 	html.main([attribute.class("container series-page")], [
 		html.div([], [
 			html.div([attribute.class("series-bg-image"), attribute.style([
@@ -18,59 +21,36 @@ pub fn page(srs: series.Series) -> element.Element(layout.Msg) {
 				#("backdrop-filter", "blur(4px)")
 			])], [])
 		]),
-		html.div([attribute.class("container grid flex")], [
+		html.div([attribute.class("info")], [
 			html.img([
 				attribute.attribute("loading", "lazy"),
 				attribute.src(srs.image),
-				attribute.style([#("border-radius", "var(--pico-border-radius)")])
+				attribute.class("img-fluid cover")
 			]),
-			html.div([attribute.class("grid col-1"), attribute.style([
-					//#("grid-template-rows", "auto 1fr")
-			])], [
-				html.div([attribute.class("flex col-1 gy-0"), attribute.style([
-					#("min-height", "10rem"),
-				])], [
-					html.h1([attribute.class("mb-0")], [element.text(srs.name)]),
-					html.span([], [element.text(srs.name)]),
-					html.div([attribute.style([
-						#("flex-grow", "1")
-					])], []),
-					html.span([], [element.text("Ikada Kai")]),
-				]),
-				html.div([attribute.class("grid col-1")], [
-					html.div([attribute.class("grid"), attribute.style([
-						#("display", "inline-flex")
-					])], [
-						html.a([
-							attribute.role("button"),
-							attribute.href("/series"),
-						], [element.text("Start Reading")]),
-						html.button([attribute.class("secondary")], [
-							html.span([attribute.class("icon-star-o")], [])
-						]),
-					]),
-					html.div([], [
-						html.div([attribute.class("flex"), attribute.style([
-							#("gap", "0.5em"),
-							#("flex-wrap", "wrap")
-						])],
-							tagbadge.tags([
-								"Suggestive",
-								"Comedy",
-								"Romantic Subtext",
-							])
-						),
-						html.div([attribute.class("publication ico-gap")], [
-							html.span([attribute.class("icon-circle")], []),
-							html.span([], [element.text("Publication: 2023, Ongoing")])
-						]),
-						html.div([attribute.class("rating ico-gap")], [
-							html.span([attribute.class("icon-star")], []),
-							html.span([], [element.text("8.06")])
-						])
-					])
+			html.div([attribute.class("names d-flex")], [
+				html.h1([attribute.class("title")], [element.text(srs.name)]),
+				html.p([attribute.class("subtitle")], [element.text(srs.name)]),
+				html.div([attribute.style([
+					#("flex-grow", "1"),
+					#("display", "block")
+				])], []),
+				html.span([attribute.class("authors")], [
+					element.text(string.join(srs.authors, ", "))
 				])
 			]),
+			html.div([attribute.class("buttons")], [
+				html.button([attribute.attribute("type", "button"), attribute.class("btn btn-primary btn-lg")], [
+					html.span([attribute.class("icon-book")], []),
+					element.text("Start Reading")
+				])
+			]),
+			html.div([attribute.class("d-flex tagandpub")], [
+				html.div([attribute.class("d-flex tag-list")], list.append(tag.list(srs.tags), tag.list(srs.genres))),
+				html.div([attribute.class("publication")], [
+					html.span([attribute.class("icon-circle"), attribute.attribute("data-publication", series.publication_title(srs.publication))], []),
+					html.span([attribute.class("publication-text")], [element.text("Publication: " <> series.publication_title(srs.publication))])
+				])
+			])
 		]),
 		html.div([], [
 			html.p([], [
@@ -79,9 +59,9 @@ pub fn page(srs: series.Series) -> element.Element(layout.Msg) {
 		]),
 		html.div([attribute.class("grid")], [
 			html.div([attribute.class("flex info-extras")], [
-				tagbadge.badges_title("Author", srs.authors),
-				tagbadge.badges_title("Artist", srs.artists),
-				tagbadge.badges_title("Genres", srs.genres),
+				tag.list_title("Author", srs.authors),
+				tag.list_title("Artist", srs.artists),
+				tag.list_title("Genres", srs.genres),
 			]),
 			html.div([], [
 				html.h3([], [element.text("Chapters")]),
