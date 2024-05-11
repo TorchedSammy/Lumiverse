@@ -16,49 +16,35 @@ import lumiverse/models/auth as auth_model
 import lumiverse/model
 
 pub fn page(model: model.Model) -> element.Element(layout.Msg) {
-	let frieren = series_model.Manga(
-		id: "sousou-no-frieren",
-		name: "Sousou no Frieren",
-		image: "https://mangadex.org/covers/b0b721ff-c388-4486-aa0f-c2b0bb321512/425098a9-e052-4fea-921d-368252ad084e.jpg",
-		artists: ["Abe Tsukasa"],
-		authors: ["Yamada Kanehito"],
-		description: "",
-		genres: ["Adventure", "Drama", "Fantasy", "Slice of Life"],
-		tags: [],
-		publication: series_model.Ongoing
-	)
-
-	html.div([], [
-		case model.user {
-			option.None -> series.card(frieren)
-			option.Some(user) -> {
-				html.div([attribute.id("featuredCarousel"), attribute.class("featured-carousel carousel container slide"), attribute.attribute("data-bs-ride", "carousel")], [
-					html.h1([], [element.text("Newest Series")]),
-					html.div([attribute.class("carousel-inner")], [
-						{
-							let assert Ok(srs) = list.first(model.home.carousel_smalldata)
-							carousel_item(model, user, srs, True)
-						},
-						..list.append(
-							list.map(list.drop(model.home.carousel_smalldata, 1), fn(srs: series_model.MinimalInfo) -> element.Element(layout.Msg) {
-								carousel_item(model, user, srs, False)
-							}),
-							[
-								html.div([attribute.class("featured-carousel-controls")], [
-									html.button([attribute.class("carousel-control-prev"), attribute.attribute("data-bs-target", "#featuredCarousel"), attribute.attribute("data-bs-slide", "prev")], [
-										html.span([attribute.class("icon-angle-left")], []),
-									]),
-									html.button([attribute.class("carousel-control-next"), attribute.attribute("data-bs-target", "#featuredCarousel"), attribute.attribute("data-bs-slide", "next")], [
-										html.span([attribute.class("icon-angle-right")], []),
-									])
+	html.div([], case model.user {
+		option.None -> []
+		option.Some(user) -> {
+			html.div([attribute.id("featuredCarousel"), attribute.class("featured-carousel carousel container slide"), attribute.attribute("data-bs-ride", "carousel")], [
+				html.h1([], [element.text("Newest Series")]),
+				html.div([attribute.class("carousel-inner")], [
+					{
+						let assert Ok(srs) = list.first(model.home.carousel_smalldata)
+						carousel_item(model, user, srs, True)
+					},
+					..list.append(
+						list.map(list.drop(model.home.carousel_smalldata, 1), fn(srs: series_model.MinimalInfo) -> element.Element(layout.Msg) {
+							carousel_item(model, user, srs, False)
+						}),
+						[
+							html.div([attribute.class("featured-carousel-controls")], [
+								html.button([attribute.class("carousel-control-prev"), attribute.attribute("data-bs-target", "#featuredCarousel"), attribute.attribute("data-bs-slide", "prev")], [
+									html.span([attribute.class("icon-angle-left")], []),
+								]),
+								html.button([attribute.class("carousel-control-next"), attribute.attribute("data-bs-target", "#featuredCarousel"), attribute.attribute("data-bs-slide", "next")], [
+									html.span([attribute.class("icon-angle-right")], []),
 								])
-							]
-						)
-					])
+							])
+						]
+					)
 				])
-			}
+			])
 		}
-	])
+	})
 }
 
 fn carousel_item(model: model.Model, user: auth_model.User, srs: series_model.MinimalInfo, active: Bool) {
