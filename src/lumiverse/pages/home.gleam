@@ -82,8 +82,8 @@ fn carousel_item(model: model.Model, user: auth_model.User, srs: series_model.Mi
 			html.img([attribute.src(cover_url)]),
 			html.div([attribute.class("item-text")], [
 				html.h2([], [element.text(srs.name)]),
+				tag.list(list.append(list.map(metadata.tags, fn(t) {t.title}), list.map(metadata.genres, fn(t) {t.title}))),
 				html.p([], [element.text(metadata.summary)]),
-				html.div([], list.append(tag.list(list.map(metadata.tags, fn(t) {t.title})), tag.list(list.map(metadata.genres, fn(t) {t.title}))))
 			])
 		])
 	])

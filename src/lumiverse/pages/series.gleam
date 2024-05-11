@@ -45,7 +45,7 @@ pub fn page(srs: series.Manga) -> element.Element(layout.Msg) {
 				])
 			]),
 			html.div([attribute.class("d-flex tagandpub")], [
-				html.div([attribute.class("d-flex tag-list")], list.append(tag.list(srs.tags), tag.list(srs.genres))),
+				html.div([attribute.class("d-flex tag-list")], [tag.list(list.append(srs.tags, srs.genres))]),
 				html.div([attribute.class("publication")], [
 					html.span([attribute.class("icon-circle"), attribute.attribute("data-publication", series.publication_title(srs.publication))], []),
 					html.span([attribute.class("publication-text")], [element.text("Publication: " <> series.publication_title(srs.publication))])

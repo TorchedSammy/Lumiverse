@@ -266,8 +266,14 @@ a {
 }
 
 .tag-list {
+	display: flex;
+	flex-wrap: wrap;
 	column-gap: 0.5rem;
 	row-gap: 0.2rem;
+}
+
+.tag {
+	--bs-badge-border-radius: 0.2rem;
 }
 
 .btn {
