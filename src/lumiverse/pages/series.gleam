@@ -13,10 +13,10 @@ import lumiverse/elements/chapter
 pub fn page(srs: series.Manga) -> element.Element(layout.Msg) {
 	html.main([attribute.class("container series-page")], [
 		html.div([], [
-			html.div([attribute.class("series-bg-image"), attribute.style([
+			html.div([attribute.class("series-bg-image bg-image-backdrop"), attribute.style([
 				#("background-image", "url('" <> srs.image <> "')")
 			])], []),
-			html.div([attribute.attribute("loading", "lazy"), attribute.class("series-bg-image"), attribute.style([
+			html.div([attribute.attribute("loading", "lazy"), attribute.class("series-bg-image bg-image-backdrop"), attribute.style([
 				#("background", "linear-gradient(67.81deg,rgba(0,0,0,.64) 35.51%,transparent)"),
 				#("backdrop-filter", "blur(4px)")
 			])], [])

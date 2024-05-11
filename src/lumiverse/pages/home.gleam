@@ -10,6 +10,7 @@ import lumiverse/common
 import lumiverse/layout
 import lumiverse/elements/series
 import lumiverse/models/series as series_model
+import lumiverse/models/auth as auth_model
 import lumiverse/model
 
 pub fn page(model: model.Model) -> element.Element(layout.Msg) {
@@ -33,15 +34,11 @@ pub fn page(model: model.Model) -> element.Element(layout.Msg) {
 					html.div([attribute.class("carousel-inner")], [
 						{
 							let assert Ok(srs) = list.first(model.home.carousel)
-							html.div([attribute.class("carousel-item active")], [
-								html.img([attribute.src(common.kavita_api_url <> "/api/image/series-cover?seriesId=" <> int.to_string(srs.id) <> "&apiKey=" <> user.api_key)])
-							])
+							carousel_item(user, srs, True)
 						},
 						..list.append(
 							list.map(list.drop(model.home.carousel, 1), fn(srs: series_model.MinimalInfo) -> element.Element(layout.Msg) {
-								html.div([attribute.class("carousel-item")], [
-									html.img([attribute.src(common.kavita_api_url <> "/api/image/series-cover?seriesId=" <> int.to_string(srs.id) <> "&apiKey=" <> user.api_key)])
-								])
+								carousel_item(user, srs, False)
 							}),
 							[
 								html.div([attribute.class("featured-carousel-controls")], [
@@ -61,4 +58,19 @@ pub fn page(model: model.Model) -> element.Element(layout.Msg) {
 	])
 }
 
+fn carousel_item(user: auth_model.User, srs: series_model.MinimalInfo, active: Bool) {
+	let active_string = case active {
+		True -> " active"
+		False -> ""
+	}
+	let cover_url = common.kavita_api_url <> "/api/image/series-cover?seriesId=" <> int.to_string(srs.id) <> "&apiKey=" <> user.api_key
+
+	html.div([attribute.class("carousel-item" <> active_string)], [
+		html.div([attribute.class("series-bg-image bg-image-backdrop"), attribute.style([
+			#("background-image", "url(" <> cover_url <> ")"),
+			#("height", "25.4rem"),
+		])], []),
+		html.img([attribute.src(cover_url)])
+	])
+}
 //fn hero_card()
