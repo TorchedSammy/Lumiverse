@@ -1,3 +1,4 @@
+import gleam/dict
 import gleam/option
 
 import lumiverse/models/router
@@ -9,7 +10,9 @@ pub type Model {
 		route: router.Route,
 		user: option.Option(auth.User),
 		auth: AuthModel,
-		home: HomeModel
+		home: HomeModel,
+		metadatas: dict.Dict(Int, series.Metadata),
+		series: dict.Dict(Int, series.MinimalInfo)
 	)
 }
 
@@ -22,6 +25,7 @@ pub type AuthModel {
 
 pub type HomeModel {
 	HomeModel(
-		carousel: List(series.MinimalInfo)
+		carousel_smalldata: List(series.MinimalInfo),
+		carousel: List(series.Metadata)
 	)
 }

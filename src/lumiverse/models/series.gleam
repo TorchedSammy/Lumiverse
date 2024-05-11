@@ -12,6 +12,23 @@ pub type Manga {
 	)
 }
 
+pub type Metadata {
+	Metadata(
+		id: Int,
+		genres: List(Tag),
+		tags: List(Tag),
+		summary: String,
+		series_id: Int
+	)
+}
+
+pub type Tag {
+	Tag(
+		id: Int,
+		title: String
+	)
+}
+
 pub type MinimalInfo {
 	MinimalInfo(
 		id: Int,

@@ -1095,12 +1095,21 @@ function regex_scan(regex, string3) {
   });
   return List.fromArray(matches);
 }
+function new_map() {
+  return Dict.new();
+}
+function map_to_list(map6) {
+  return List.fromArray(map6.entries());
+}
 function map_get(map6, key) {
   const value2 = map6.get(key, NOT_FOUND);
   if (value2 === NOT_FOUND) {
     return new Error(Nil);
   }
   return new Ok(value2);
+}
+function map_insert(key, value2, map6) {
+  return map6.set(key, value2);
 }
 function classify_dynamic(data) {
   if (typeof data === "string") {
@@ -1246,6 +1255,59 @@ function inspectBitArray(bits) {
 }
 function inspectUtfCodepoint(codepoint2) {
   return `//utfcodepoint(${String.fromCodePoint(codepoint2.value)})`;
+}
+
+// build/dev/javascript/gleam_stdlib/gleam/dict.mjs
+function new$() {
+  return new_map();
+}
+function get(from3, get2) {
+  return map_get(from3, get2);
+}
+function insert(dict2, key, value2) {
+  return map_insert(key, value2, dict2);
+}
+function fold_list_of_pair(loop$list, loop$initial) {
+  while (true) {
+    let list3 = loop$list;
+    let initial = loop$initial;
+    if (list3.hasLength(0)) {
+      return initial;
+    } else {
+      let x = list3.head;
+      let rest = list3.tail;
+      loop$list = rest;
+      loop$initial = insert(initial, x[0], x[1]);
+    }
+  }
+}
+function from_list(list3) {
+  return fold_list_of_pair(list3, new$());
+}
+function insert_pair(dict2, pair) {
+  return insert(dict2, pair[0], pair[1]);
+}
+function fold_inserts(loop$new_entries, loop$dict) {
+  while (true) {
+    let new_entries = loop$new_entries;
+    let dict2 = loop$dict;
+    if (new_entries.hasLength(0)) {
+      return dict2;
+    } else {
+      let x = new_entries.head;
+      let xs = new_entries.tail;
+      loop$new_entries = xs;
+      loop$dict = insert_pair(dict2, x);
+    }
+  }
+}
+function do_merge(dict2, new_entries) {
+  let _pipe = new_entries;
+  let _pipe$1 = map_to_list(_pipe);
+  return fold_inserts(_pipe$1, dict2);
+}
+function merge(dict2, new_entries) {
+  return do_merge(dict2, new_entries);
 }
 
 // build/dev/javascript/gleam_stdlib/gleam/int.mjs
@@ -1531,9 +1593,9 @@ function any(decoders) {
         toList([new DecodeError("another type", classify(data), toList([]))])
       );
     } else {
-      let decoder3 = decoders.head;
+      let decoder2 = decoders.head;
       let decoders$1 = decoders.tail;
-      let $ = decoder3(data);
+      let $ = decoder2(data);
       if ($.isOk()) {
         let decoded = $[0];
         return new Ok(decoded);
@@ -1553,13 +1615,13 @@ function all_errors(result) {
 }
 function push_path(error, name3) {
   let name$1 = from(name3);
-  let decoder3 = any(
+  let decoder2 = any(
     toList([string, (x) => {
       return map3(int(x), to_string2);
     }])
   );
   let name$2 = (() => {
-    let $ = decoder3(name$1);
+    let $ = decoder2(name$1);
     if ($.isOk()) {
       let name$22 = $[0];
       return name$22;
@@ -1646,6 +1708,40 @@ function decode3(constructor, t1, t2, t3) {
       let c = $2;
       return new Error(
         concat2(toList([all_errors(a2), all_errors(b), all_errors(c)]))
+      );
+    }
+  };
+}
+function decode5(constructor, t1, t2, t3, t4, t5) {
+  return (x) => {
+    let $ = t1(x);
+    let $1 = t2(x);
+    let $2 = t3(x);
+    let $3 = t4(x);
+    let $4 = t5(x);
+    if ($.isOk() && $1.isOk() && $2.isOk() && $3.isOk() && $4.isOk()) {
+      let a2 = $[0];
+      let b = $1[0];
+      let c = $2[0];
+      let d = $3[0];
+      let e = $4[0];
+      return new Ok(constructor(a2, b, c, d, e));
+    } else {
+      let a2 = $;
+      let b = $1;
+      let c = $2;
+      let d = $3;
+      let e = $4;
+      return new Error(
+        concat2(
+          toList([
+            all_errors(a2),
+            all_errors(b),
+            all_errors(c),
+            all_errors(d),
+            all_errors(e)
+          ])
+        )
       );
     }
   };
@@ -2088,11 +2184,11 @@ var UnexpectedFormat = class extends CustomType {
     this[0] = x0;
   }
 };
-function do_decode(json, decoder3) {
+function do_decode(json, decoder2) {
   return then$(
     decode(json),
     (dynamic_value) => {
-      let _pipe = decoder3(dynamic_value);
+      let _pipe = decoder2(dynamic_value);
       return map_error(
         _pipe,
         (var0) => {
@@ -2102,8 +2198,8 @@ function do_decode(json, decoder3) {
     }
   );
 }
-function decode4(json, decoder3) {
-  return do_decode(json, decoder3);
+function decode4(json, decoder2) {
+  return do_decode(json, decoder2);
 }
 function to_string6(json) {
   return json_to_string(json);
@@ -2684,6 +2780,9 @@ function article(attrs, children) {
 function h1(attrs, children) {
   return element("h1", attrs, children);
 }
+function h2(attrs, children) {
+  return element("h2", attrs, children);
+}
 function h3(attrs, children) {
   return element("h3", attrs, children);
 }
@@ -3045,7 +3144,7 @@ function response_to_result(response) {
     return new Error(new OtherError(code, body));
   }
 }
-function expect_json(decoder3, to_msg) {
+function expect_json(decoder2, to_msg) {
   return new ExpectTextResponse(
     (response) => {
       let _pipe = response;
@@ -3053,7 +3152,7 @@ function expect_json(decoder3, to_msg) {
       let _pipe$2 = then$(
         _pipe$1,
         (body) => {
-          let $ = decode4(body, decoder3);
+          let $ = decode4(body, decoder2);
           if ($.isOk()) {
             let json = $[0];
             return new Ok(json);
@@ -3260,6 +3359,23 @@ var Manga = class extends CustomType {
     this.publication = publication;
   }
 };
+var Metadata = class extends CustomType {
+  constructor(id2, genres, tags, summary, series_id) {
+    super();
+    this.id = id2;
+    this.genres = genres;
+    this.tags = tags;
+    this.summary = summary;
+    this.series_id = series_id;
+  }
+};
+var Tag = class extends CustomType {
+  constructor(id2, title) {
+    super();
+    this.id = id2;
+    this.title = title;
+  }
+};
 var MinimalInfo = class extends CustomType {
   constructor(id2, name3) {
     super();
@@ -3301,6 +3417,12 @@ var LoginGot = class extends CustomType {
   }
 };
 var HomeRecentlyAddedUpdate = class extends CustomType {
+  constructor(x0) {
+    super();
+    this[0] = x0;
+  }
+};
+var SeriesMetadataRetrieved = class extends CustomType {
   constructor(x0) {
     super();
     this[0] = x0;
@@ -3498,13 +3620,34 @@ function encode_login_json(user) {
 }
 
 // build/dev/javascript/lumiverse/lumiverse/api/series.mjs
-function decoder2() {
+function minimal_decoder() {
   return decode2(
     (var0, var1) => {
       return new MinimalInfo(var0, var1);
     },
     field("id", int),
     field("name", string)
+  );
+}
+function tag_decoder() {
+  return decode2(
+    (var0, var1) => {
+      return new Tag(var0, var1);
+    },
+    field("id", int),
+    field("title", string)
+  );
+}
+function metadata_decoder() {
+  return decode5(
+    (var0, var1, var2, var3, var4) => {
+      return new Metadata(var0, var1, var2, var3, var4);
+    },
+    field("id", int),
+    field("genres", list(tag_decoder())),
+    field("tags", list(tag_decoder())),
+    field("summary", string),
+    field("seriesId", int)
   );
 }
 function recently_added(token) {
@@ -3515,7 +3658,7 @@ function recently_added(token) {
     throw makeError(
       "assignment_no_match",
       "lumiverse/api/series",
-      25,
+      45,
       "recently_added",
       "Assignment pattern did not match",
       { value: $ }
@@ -3543,9 +3686,54 @@ function recently_added(token) {
   return send2(
     req$1,
     expect_json(
-      list(decoder2()),
+      list(minimal_decoder()),
       (var0) => {
         return new HomeRecentlyAddedUpdate(var0);
+      }
+    )
+  );
+}
+function metadata(series_id, token) {
+  let $ = to(
+    kavita_api_url + "/api/series/metadata?seriesId=" + to_string2(
+      series_id
+    )
+  );
+  if (!$.isOk()) {
+    throw makeError(
+      "assignment_no_match",
+      "lumiverse/api/series",
+      58,
+      "metadata",
+      "Assignment pattern did not match",
+      { value: $ }
+    );
+  }
+  let req = $[0];
+  let req$1 = (() => {
+    let _pipe = req;
+    let _pipe$1 = set_method(_pipe, new Get());
+    let _pipe$2 = set_body(
+      _pipe$1,
+      (() => {
+        let _pipe$22 = object2(toList([]));
+        return to_string6(_pipe$22);
+      })()
+    );
+    let _pipe$3 = set_header(
+      _pipe$2,
+      "Authorization",
+      "Bearer " + token
+    );
+    let _pipe$4 = set_header(_pipe$3, "Accept", "application/json");
+    return set_header(_pipe$4, "Content-Type", "application/json");
+  })();
+  return send2(
+    req$1,
+    expect_json(
+      metadata_decoder(),
+      (var0) => {
+        return new SeriesMetadataRetrieved(var0);
       }
     )
   );
@@ -3553,12 +3741,14 @@ function recently_added(token) {
 
 // build/dev/javascript/lumiverse/lumiverse/model.mjs
 var Model = class extends CustomType {
-  constructor(route, user, auth, home) {
+  constructor(route, user, auth, home, metadatas, series) {
     super();
     this.route = route;
     this.user = user;
     this.auth = auth;
     this.home = home;
+    this.metadatas = metadatas;
+    this.series = series;
   }
 };
 var AuthModel = class extends CustomType {
@@ -3569,8 +3759,9 @@ var AuthModel = class extends CustomType {
   }
 };
 var HomeModel = class extends CustomType {
-  constructor(carousel) {
+  constructor(carousel_smalldata, carousel) {
     super();
+    this.carousel_smalldata = carousel_smalldata;
     this.carousel = carousel;
   }
 };
@@ -3799,8 +3990,30 @@ function card(srs) {
   );
 }
 
+// build/dev/javascript/lumiverse/lumiverse/elements/tag.mjs
+function single2(tag) {
+  return span(
+    toList([class$("tag")]),
+    toList([text(tag)])
+  );
+}
+function list2(tags) {
+  return map2(tags, (t) => {
+    return single2(t);
+  });
+}
+function list_title(title, badges) {
+  return div(
+    toList([]),
+    toList([
+      h3(toList([]), toList([text(title)])),
+      div(toList([class$("tag-list")]), list2(badges))
+    ])
+  );
+}
+
 // build/dev/javascript/lumiverse/lumiverse/pages/home.mjs
-function carousel_item(user, srs, active) {
+function carousel_item(model, user, srs, active) {
   let active_string = (() => {
     if (active) {
       return " active";
@@ -3811,6 +4024,18 @@ function carousel_item(user, srs, active) {
   let cover_url = kavita_api_url + "/api/image/series-cover?seriesId=" + to_string2(
     srs.id
   ) + "&apiKey=" + user.api_key;
+  let $ = get(model.metadatas, srs.id);
+  if (!$.isOk()) {
+    throw makeError(
+      "assignment_no_match",
+      "lumiverse/pages/home",
+      70,
+      "carousel_item",
+      "Assignment pattern did not match",
+      { value: $ }
+    );
+  }
+  let metadata2 = $[0];
   return div(
     toList([class$("carousel-item" + active_string)]),
     toList([
@@ -3820,13 +4045,55 @@ function carousel_item(user, srs, active) {
           style(
             toList([
               ["background-image", "url(" + cover_url + ")"],
-              ["height", "25.4rem"]
+              ["height", "28.8rem"]
             ])
           )
         ]),
         toList([])
       ),
-      img(toList([src(cover_url)]))
+      div(
+        toList([
+          class$("series-bg-image bg-image-backdrop"),
+          style(
+            toList([
+              [
+                "background",
+                "linear-gradient(to bottom,rgb(var(--background-primary-rgb), .6),rgb(var(--background-primary-rgb)))"
+              ],
+              ["height", "28.8rem"]
+            ])
+          )
+        ]),
+        toList([])
+      ),
+      div(
+        toList([class$("item-detail")]),
+        toList([
+          img(toList([src(cover_url)])),
+          div(
+            toList([class$("item-text")]),
+            toList([
+              h2(toList([]), toList([text(srs.name)])),
+              p(toList([]), toList([text(metadata2.summary)])),
+              div(
+                toList([]),
+                append(
+                  list2(
+                    map2(metadata2.tags, (t) => {
+                      return t.title;
+                    })
+                  ),
+                  list2(
+                    map2(metadata2.genres, (t) => {
+                      return t.title;
+                    })
+                  )
+                )
+              )
+            ])
+          )
+        ])
+      )
     ])
   );
 }
@@ -3854,33 +4121,34 @@ function page(model) {
           return div(
             toList([
               id("featuredCarousel"),
-              class$("carousel slide"),
+              class$("featured-carousel carousel container slide"),
               attribute("data-bs-ride", "carousel")
             ]),
             toList([
+              h1(toList([]), toList([text("Newest Series")])),
               div(
                 toList([class$("carousel-inner")]),
                 prepend(
                   (() => {
-                    let $1 = first(model.home.carousel);
+                    let $1 = first(model.home.carousel_smalldata);
                     if (!$1.isOk()) {
                       throw makeError(
                         "assignment_no_match",
                         "lumiverse/pages/home",
-                        36,
+                        39,
                         "page",
                         "Assignment pattern did not match",
                         { value: $1 }
                       );
                     }
                     let srs = $1[0];
-                    return carousel_item(user, srs, true);
+                    return carousel_item(model, user, srs, true);
                   })(),
                   append(
                     map2(
-                      drop(model.home.carousel, 1),
+                      drop(model.home.carousel_smalldata, 1),
                       (srs) => {
-                        return carousel_item(user, srs, false);
+                        return carousel_item(model, user, srs, false);
                       }
                     ),
                     toList([
@@ -3898,11 +4166,7 @@ function page(model) {
                             ]),
                             toList([
                               span(
-                                toList([
-                                  class$(
-                                    "carousel-control-prev-icon"
-                                  )
-                                ]),
+                                toList([class$("icon-angle-left")]),
                                 toList([])
                               )
                             ])
@@ -3918,11 +4182,7 @@ function page(model) {
                             ]),
                             toList([
                               span(
-                                toList([
-                                  class$(
-                                    "carousel-control-next-icon"
-                                  )
-                                ]),
+                                toList([class$("icon-angle-right")]),
                                 toList([])
                               )
                             ])
@@ -3981,28 +4241,6 @@ function card2(srs, chp) {
         ]),
         toList([text(chp.name)])
       )
-    ])
-  );
-}
-
-// build/dev/javascript/lumiverse/lumiverse/elements/tag.mjs
-function single2(tag) {
-  return span(
-    toList([class$("tag")]),
-    toList([text(tag)])
-  );
-}
-function list2(tags) {
-  return map2(tags, (t) => {
-    return single2(t);
-  });
-}
-function list_title(title, badges) {
-  return div(
-    toList([]),
-    toList([
-      h3(toList([]), toList([text(title)])),
-      div(toList([class$("tag-list")]), list2(badges))
     ])
   );
 }
@@ -4236,7 +4474,7 @@ function route_effect(model, route) {
         throw makeError(
           "assignment_no_match",
           "lumiverse",
-          95,
+          100,
           "route_effect",
           "Assignment pattern did not match",
           { value: $ }
@@ -4274,7 +4512,9 @@ function init3(_) {
     route,
     user,
     new AuthModel("", new LoginDetails("", "")),
-    new HomeModel(toList([]))
+    new HomeModel(toList([]), toList([])),
+    new$(),
+    new$()
   );
   return [
     model,
@@ -4289,13 +4529,52 @@ function update2(model, msg) {
     return [model.withFields({ route }), route_effect(model, route)];
   } else if (msg instanceof HomeRecentlyAddedUpdate && msg[0].isOk()) {
     let series = msg[0][0];
-    return [
-      model.withFields({ home: model.home.withFields({ carousel: series }) }),
-      none()
-    ];
+    let $ = model.user;
+    if ($ instanceof Some) {
+      let user = $[0];
+      let metadata_fetchers = map2(
+        series,
+        (s) => {
+          return metadata(s.id, user.token);
+        }
+      );
+      let new_series = (() => {
+        let _pipe = from_list(
+          map2(series, (s) => {
+            return [s.id, s];
+          })
+        );
+        return merge(_pipe, model.series);
+      })();
+      return [
+        model.withFields({
+          home: model.home.withFields({ carousel_smalldata: series }),
+          series: new_series
+        }),
+        batch(metadata_fetchers)
+      ];
+    } else {
+      return [model, none()];
+    }
   } else if (msg instanceof HomeRecentlyAddedUpdate && !msg[0].isOk()) {
     let e = msg[0][0];
     println("failure");
+    debug(e);
+    return [model, none()];
+  } else if (msg instanceof SeriesMetadataRetrieved && msg[0].isOk()) {
+    let metadata2 = msg[0][0];
+    return [
+      model.withFields({
+        metadatas: (() => {
+          let _pipe = model.metadatas;
+          return insert(_pipe, metadata2.id, metadata2);
+        })()
+      }),
+      none()
+    ];
+  } else if (msg instanceof SeriesMetadataRetrieved && !msg[0].isOk()) {
+    let e = msg[0][0];
+    println("metadata fetch failed");
     debug(e);
     return [model, none()];
   } else if (msg instanceof AuthPage && msg[0] instanceof LoginSubmitted) {
@@ -4343,7 +4622,7 @@ function update2(model, msg) {
       throw makeError(
         "assignment_no_match",
         "lumiverse",
-        131,
+        156,
         "update",
         "Assignment pattern did not match",
         { value: $ }
@@ -4426,7 +4705,7 @@ function main2() {
     throw makeError(
       "assignment_no_match",
       "lumiverse",
-      32,
+      34,
       "main",
       "Assignment pattern did not match",
       { value: $ }

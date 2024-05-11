@@ -362,7 +362,28 @@ input {
     gap: 3rem;
 }
 
+.featured-carousel-controls {
+	margin-right: 2rem;
+}
+
+.featured-carousel-controls span {
+	font-size: 2rem;
+}
+
 .featured-carousel-controls .carousel-control-next, .carousel-control-prev {
 	display: unset;
 	position: unset;
+}
+
+.featured-carousel .item-detail {
+	display: flex;
+	gap: 0.6rem;
+}
+
+.featured-carousel .item-detail img, .carousel-item {
+	height: 20rem;
+}
+
+.featued-carousel .item-text {
+	display: grid;
 }

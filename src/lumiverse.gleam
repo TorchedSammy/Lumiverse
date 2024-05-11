@@ -1,5 +1,7 @@
+import gleam/dict
 import gleam/option
 import gleam/result
+import gleam/list
 import gleam/io
 import gleam/javascript/promise
 import gleam/uri
@@ -58,8 +60,11 @@ fn init(_) {
 			user_details: auth_model.LoginDetails("", "")
 		),
 		home: model.HomeModel(
-			carousel: []
-		)
+			carousel: [],
+			carousel_smalldata: []
+		),
+		metadatas: dict.new(),
+		series: dict.new()
 	)
 
 	#(model, effect.batch([modem.init(on_url_change), route_effect(model, route)]))
@@ -105,10 +110,30 @@ fn update(model: model.Model, msg: layout.Msg) -> #(model.Model, Effect(layout.M
 			#(model.Model(..model, route: route), route_effect(model, route))
 		}
 		layout.HomeRecentlyAddedUpdate(Ok(series)) -> {
-			#(model.Model(..model, home: model.HomeModel(..model.home, carousel: series)), effect.none())
+			case model.user {
+				option.Some(user) -> {
+					let metadata_fetchers = list.map(series, fn(s: series_model.MinimalInfo) {
+						series_req.metadata(s.id, user.token)
+					})
+					let new_series = dict.from_list(list.map(series, fn(s: series_model.MinimalInfo) {
+						#(s.id, s)
+					}))
+					|> dict.merge(model.series)
+					#(model.Model(..model, home: model.HomeModel(..model.home, carousel_smalldata: series), series: new_series), effect.batch(metadata_fetchers))
+				}
+				option.None -> #(model, effect.none())
+			}
 		}
 		layout.HomeRecentlyAddedUpdate(Error(e)) -> {
 			io.println("failure")
+			io.debug(e)
+			#(model, effect.none())
+		}
+		layout.SeriesMetadataRetrieved(Ok(metadata)) -> {
+			#(model.Model(..model, metadatas: model.metadatas |> dict.insert(metadata.id, metadata)), effect.none())
+		}
+		layout.SeriesMetadataRetrieved(Error(e)) -> {
+			io.println("metadata fetch failed")
 			io.debug(e)
 			#(model, effect.none())
 		}
