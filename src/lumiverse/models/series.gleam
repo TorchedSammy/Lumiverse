@@ -18,6 +18,7 @@ pub type Metadata {
 		genres: List(Tag),
 		tags: List(Tag),
 		summary: String,
+		publication_status: Publication,
 		series_id: Int
 	)
 }
@@ -38,6 +39,10 @@ pub type MinimalInfo {
 
 pub type Publication {
 	Ongoing
+	Hiatus
+	Completed
+	Cancelled
+	Ended
 }
 
 pub type Chapter {
@@ -51,5 +56,9 @@ pub type Chapter {
 pub fn publication_title(publication: Publication) -> String {
 	case publication {
 		Ongoing -> "ongoing"
+		Hiatus -> "hiatus"
+		Completed -> "completed"
+		Cancelled -> "cancelled"
+		Ended -> "ended"
 	}
 }

@@ -141,8 +141,7 @@ p {
 	"left cover buttons right"
 	"left cover tagandpub right"
 	"left cover stats right"
-	"left cover padding right"
-	"left synopsis synopsis right"
+	"left cover summary right"
 	"left content content right";
 	grid-template-columns: 1fr 200px minmax(0, calc(1240px - 3.5rem)) 1fr;
 }
@@ -161,12 +160,7 @@ p {
 }
 
 .series-page .names .title {
-	font-size: 4rem;
 	margin-bottom: 0;
-}
-
-.series-page .names .subtitle {
-	font-size: 1.1rem;
 }
 
 .series-page .buttons {
@@ -388,10 +382,6 @@ input {
 
 .featured-carousel .item-detail img, .carousel-item {
 	height: 20rem;
-}
-
-.carousel-item a {
-	color: inherit;
 }
 
 .featued-carousel .item-text {

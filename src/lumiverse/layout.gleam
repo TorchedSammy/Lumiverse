@@ -15,6 +15,7 @@ pub type Msg {
 	AuthPage(auth.Msg)
 	LoginGot(Result(auth.User, http.HttpError))
 	HomeRecentlyAddedUpdate(Result(List(series.MinimalInfo), http.HttpError))
+	SeriesRetrieved(Result(series.MinimalInfo, http.HttpError))
 	SeriesMetadataRetrieved(Result(series.Metadata, http.HttpError))
 }
 

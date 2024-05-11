@@ -70,7 +70,7 @@ fn carousel_item(model: model.Model, user: auth_model.User, srs: series_model.Mi
 	let assert Ok(metadata) = dict.get(model.metadatas, srs.id)
 
 	html.div([attribute.class("carousel-item" <> active_string)], [
-		html.a([attribute.href("/series/" <> int.to_string(srs.id))], [
+		html.a([attribute.class("text-reset"), attribute.href("/series/" <> int.to_string(srs.id))], [
 			html.div([attribute.class("series-bg-image bg-image-backdrop"), attribute.style([
 				#("background-image", "url(" <> cover_url <> ")"),
 				#("height", "28.8rem"),

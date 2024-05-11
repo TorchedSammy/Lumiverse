@@ -2,6 +2,7 @@ import gleam/dict
 import gleam/option
 import gleam/result
 import gleam/list
+import gleam/int
 import gleam/io
 import gleam/javascript/promise
 import gleam/uri
@@ -64,7 +65,8 @@ fn init(_) {
 			carousel_smalldata: []
 		),
 		metadatas: dict.new(),
-		series: dict.new()
+		series: dict.new(),
+		viewing_series: option.None
 	)
 
 	#(model, effect.batch([modem.init(on_url_change), route_effect(model, route)]))
@@ -100,6 +102,20 @@ fn route_effect(model: model.Model, route: router.Route) -> Effect(layout.Msg) {
 			let assert Ok(home) = uri.parse("/")
 			modem.load(home)
 		}
+		router.Series(id) -> case model.user {
+			option.None -> {
+			io.println("no siri")
+				effect.none()
+			}
+			option.Some(user) -> {
+				io.println("getting serie")
+				let id_parsed = int.base_parse(id, 10)
+				case id_parsed {
+					Ok(id_int) -> effect.batch([series_req.series(id_int, user.token), series_req.metadata(id_int, user.token)])
+					Error(_) -> effect.from(fn(dispatch) { router.NotFound |> router.ChangeRoute |> layout.Router |> dispatch})
+				}
+			}
+		}
 		_ -> effect.none()
 	}
 }
@@ -128,6 +144,12 @@ fn update(model: model.Model, msg: layout.Msg) -> #(model.Model, Effect(layout.M
 			io.println("failure")
 			io.debug(e)
 			#(model, effect.none())
+		}
+		layout.SeriesRetrieved(maybe_serie) -> {
+			#(model.Model(
+				..model,
+				viewing_series: option.Some(maybe_serie)
+			), effect.none())
 		}
 		layout.SeriesMetadataRetrieved(Ok(metadata)) -> {
 			#(model.Model(..model, metadatas: model.metadatas |> dict.insert(metadata.id, metadata)), effect.none())
@@ -182,29 +204,7 @@ fn view(model: model.Model) -> Element(layout.Msg) {
 		router.Home -> home.page(model)
 		router.Login -> auth.login(model)
 		router.Logout -> auth.logout()
-		router.Series(id) -> {
-			io.println(id)
-			// this is just a test case,
-			// on request series should be fetched from kavita
-			case id {
-				"sousou-no-frieren" -> {
-					let frieren = series_model.Manga(
-						id: "sousou-no-frieren",
-						name: "Sousou no Frieren",
-						image: "https://mangadex.org/covers/b0b721ff-c388-4486-aa0f-c2b0bb321512/425098a9-e052-4fea-921d-368252ad084e.jpg",
-						artists: ["Abe Tsukasa"],
-						authors: ["Yamada Kanehito"],
-						description: "",
-						genres: ["Adventure", "Drama", "Fantasy", "Slice of Life"],
-						tags: [],
-						publication: series_model.Ongoing
-					)
-
-					series_page.page(frieren)
-				}
-				_ -> not_found.page()
-			}
-		}
+		router.Series(id) -> series_page.page(model)
 		router.NotFound -> not_found.page()
 	}
 
