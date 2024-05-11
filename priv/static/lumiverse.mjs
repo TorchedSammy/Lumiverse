@@ -3332,9 +3332,7 @@ function drop_item(icon, name3, href2) {
 function nav2(user) {
   return nav(
     toList([
-      class$(
-        "navbar fixed-top navbar-expand-lg bg-body border-bottom border-primary"
-      )
+      class$("navbar fixed-top navbar-expand-lg border-bottom")
     ]),
     toList([
       div(
@@ -3802,6 +3800,36 @@ function card(srs) {
 }
 
 // build/dev/javascript/lumiverse/lumiverse/pages/home.mjs
+function carousel_item(user, srs, active) {
+  let active_string = (() => {
+    if (active) {
+      return " active";
+    } else {
+      return "";
+    }
+  })();
+  let cover_url = kavita_api_url + "/api/image/series-cover?seriesId=" + to_string2(
+    srs.id
+  ) + "&apiKey=" + user.api_key;
+  return div(
+    toList([class$("carousel-item" + active_string)]),
+    toList([
+      div(
+        toList([
+          class$("series-bg-image bg-image-backdrop"),
+          style(
+            toList([
+              ["background-image", "url(" + cover_url + ")"],
+              ["height", "25.4rem"]
+            ])
+          )
+        ]),
+        toList([])
+      ),
+      img(toList([src(cover_url)]))
+    ])
+  );
+}
 function page(model) {
   let frieren = new Manga(
     "Sousou no Frieren",
@@ -3839,46 +3867,20 @@ function page(model) {
                       throw makeError(
                         "assignment_no_match",
                         "lumiverse/pages/home",
-                        35,
+                        36,
                         "page",
                         "Assignment pattern did not match",
                         { value: $1 }
                       );
                     }
                     let srs = $1[0];
-                    return div(
-                      toList([class$("carousel-item active")]),
-                      toList([
-                        img(
-                          toList([
-                            src(
-                              kavita_api_url + "/api/image/series-cover?seriesId=" + to_string2(
-                                srs.id
-                              ) + "&apiKey=" + user.api_key
-                            )
-                          ])
-                        )
-                      ])
-                    );
+                    return carousel_item(user, srs, true);
                   })(),
                   append(
                     map2(
                       drop(model.home.carousel, 1),
                       (srs) => {
-                        return div(
-                          toList([class$("carousel-item")]),
-                          toList([
-                            img(
-                              toList([
-                                src(
-                                  kavita_api_url + "/api/image/series-cover?seriesId=" + to_string2(
-                                    srs.id
-                                  ) + "&apiKey=" + user.api_key
-                                )
-                              ])
-                            )
-                          ])
-                        );
+                        return carousel_item(user, srs, false);
                       }
                     ),
                     toList([
@@ -4015,7 +4017,7 @@ function page3(srs) {
         toList([
           div(
             toList([
-              class$("series-bg-image"),
+              class$("series-bg-image bg-image-backdrop"),
               style(
                 toList([["background-image", "url('" + srs.image + "')"]])
               )
@@ -4025,7 +4027,7 @@ function page3(srs) {
           div(
             toList([
               attribute("loading", "lazy"),
-              class$("series-bg-image"),
+              class$("series-bg-image bg-image-backdrop"),
               style(
                 toList([
                   [

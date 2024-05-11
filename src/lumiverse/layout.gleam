@@ -45,7 +45,7 @@ pub fn head() -> element.Element(a) {
 }
 
 pub fn nav(user: option.Option(auth.User)) -> element.Element(a) {
-	html.nav([attribute.class("navbar fixed-top navbar-expand-lg bg-body border-bottom border-primary")], [
+	html.nav([attribute.class("navbar fixed-top navbar-expand-lg border-bottom")], [
 		html.div([attribute.class("container-fluid")], [
 			html.a([attribute.class("navbar-brand"), attribute.href("/")], [
 				html.img([

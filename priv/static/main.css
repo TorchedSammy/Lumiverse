@@ -37,17 +37,18 @@
 	--publication-ongoing: var(--color-green);
 }
 
-header {
-	background-color: var(--background-primary);
-	transition: backdrop-filter 0.2s ease-in-out, box-shadow 0.2s ease-in-out, background-color 0.2 ease-in-out;
+.navbar {
+	background-color: rgba(var(--background-primary-rgb), 0.5) !important;
+	transition: backdrop-filter 0.2s ease-in-out, box-shadow 0.2s ease-in-out, background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;
+	border-color: #00000000 !important;
 	z-index: 1;
 }
 
-html:not([data-scroll='0']) header {
+html:not([data-scroll='0']) .navbar {
 	border-bottom: var(--primary) var(--pico-border-width) solid;
+	border-color: var(--primary) !important;
 	backdrop-filter: blur(5px);
-	box-shadow: var(--pico-box-shadow);
-	background-color: rgba(var(--background-primary-rgba), 0.9);
+	background-color: rgba(var(--background-primary-rgb), 0.9) !important;
 }
 
 .navbar {
@@ -112,11 +113,14 @@ p {
 }
 
 /* Series Page */
-.series-bg-image {
+.bg-image-backdrop {
 	background-size: cover;
 	background-position-y: -50px;
 	width: 100%;
 	position: fixed;
+}
+
+.series-bg-image {
 	top: 0;
 	left: 0;
 	height: 15rem;
