@@ -16,6 +16,7 @@ import localstorage
 import router as router_handler
 
 import lumiverse/api/api
+import lumiverse/api/series as series_req
 import lumiverse/model
 import lumiverse/models/series as series_model
 import lumiverse/models/auth as auth_model
@@ -35,21 +36,33 @@ fn init(_) {
 	let kavita_user = localstorage.read("kavita_user")
 	let user = case kavita_user {
 		Ok(jsondata) -> {
-			option.Some(api.decode_login_json(jsondata))
+			case api.decode_login_json(jsondata) {
+				Ok(user) -> option.Some(user)
+				Error(_) -> {
+					localstorage.remove("kavita_user")
+					option.None
+				}
+			}
 		}
 		Error(_) -> option.None
 	}
 	io.debug(user)
 	io.debug(get_route())
 
-	#(model.Model(
-		route: router_handler.uri_to_route(get_route()),
+	let route = router_handler.uri_to_route(get_route())
+	let model = model.Model(
+		route: route,
 		user: user,
 		auth: model.AuthModel(
 			auth_message: "",
 			user_details: auth_model.LoginDetails("", "")
+		),
+		home: model.HomeModel(
+			carousel: []
 		)
-	), modem.init(on_url_change))
+	)
+
+	#(model, effect.batch([modem.init(on_url_change), route_effect(model, route)]))
 }
 
 
@@ -60,9 +73,45 @@ fn on_url_change(uri: uri.Uri) -> layout.Msg {
 @external(javascript, "./router.ffi.mjs", "get_current_href")
 fn get_route() -> uri.Uri {}
 
+fn homepage_display(user: option.Option(auth_model.User)) -> Effect(layout.Msg) {
+	io.println("im here")
+	case user {
+		option.None -> {
+		io.println("nope")
+			effect.none()
+		}
+		option.Some(user) -> {
+			io.println("getting recently added")
+			series_req.recently_added(user.token)
+		}
+	}
+}
+
+fn route_effect(model: model.Model, route: router.Route) -> Effect(layout.Msg) {
+	let eff = case route {
+		router.Home -> homepage_display(model.user)
+		router.Logout -> {
+			localstorage.remove("kavita_user")
+			let assert Ok(home) = uri.parse("/")
+			modem.load(home)
+		}
+		_ -> effect.none()
+	}
+}
+
 fn update(model: model.Model, msg: layout.Msg) -> #(model.Model, Effect(layout.Msg)) {
 	case msg {
-		layout.Router(router.ChangeRoute(route)) -> #(model.Model(..model, route: route), effect.none())
+		layout.Router(router.ChangeRoute(route)) -> {
+			#(model.Model(..model, route: route), route_effect(model, route))
+		}
+		layout.HomeRecentlyAddedUpdate(Ok(series)) -> {
+			#(model.Model(..model, home: model.HomeModel(..model.home, carousel: series)), effect.none())
+		}
+		layout.HomeRecentlyAddedUpdate(Error(e)) -> {
+			io.println("failure")
+			io.debug(e)
+			#(model, effect.none())
+		}
 		layout.AuthPage(auth_model.LoginSubmitted) -> {
 			#(model, api.login(model.auth.user_details.username, model.auth.user_details.password))
 		}
@@ -80,10 +129,8 @@ fn update(model: model.Model, msg: layout.Msg) -> #(model.Model, Effect(layout.M
 		layout.LoginGot(Ok(user)) -> {
 			io.println("we got a user!")
 			let assert Ok(home) = uri.parse("/")
-			#(model.Model(..model, user: option.Some(user)), effect.from(fn(dispatch) {
-				localstorage.write("kavita_user", api.encode_login_json(user))
-				router.ChangeRoute(router.Home) |> layout.Router |> dispatch
-			}))
+			localstorage.write("kavita_user", api.encode_login_json(user))
+			#(model.Model(..model, user: option.Some(user)), modem.load(home))
 		}
 		layout.LoginGot(Error(e)) -> {
 			io.println("this is sad")
@@ -107,7 +154,7 @@ fn update(model: model.Model, msg: layout.Msg) -> #(model.Model, Effect(layout.M
 
 fn view(model: model.Model) -> Element(layout.Msg) {
 	let page = case model.route {
-		router.Home -> home.page()
+		router.Home -> home.page(model)
 		router.Login -> auth.login(model)
 		router.Logout -> auth.logout()
 		router.Series(id) -> {

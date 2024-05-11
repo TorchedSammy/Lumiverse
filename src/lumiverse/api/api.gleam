@@ -11,10 +11,11 @@ import lumiverse/models/auth
 import lumiverse/layout
 
 fn decoder() {
-	dynamic.decode2(
+	dynamic.decode3(
 		auth.User,
 		dynamic.field("username", dynamic.string),
 		dynamic.field("token", dynamic.string),
+		dynamic.field("apiKey", dynamic.string),
 	)
 }
 
@@ -28,15 +29,15 @@ pub fn login(username: String, password: String) {
 	http.post(common.kavita_api_url <> "/api/account/login", req_json, http.expect_json(decoder(), layout.LoginGot))
 }
 
-pub fn decode_login_json(jd: String) -> auth.User {
-	let assert Ok(user) = json.decode(jd, decoder())
-	user
+pub fn decode_login_json(jd: String) -> Result(auth.User, json.DecodeError) {
+	json.decode(jd, decoder())
 }
 
 pub fn encode_login_json(user: auth.User) -> String {
 	json.object([
 		#("username", json.string(user.username)),
 		#("token", json.string(user.token)),
+		#("apiKey", json.string(user.api_key)),
 	])
 	|> json.to_string
 }

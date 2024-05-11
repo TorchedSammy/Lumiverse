@@ -24,6 +24,7 @@ pub type LoginRequest {
 pub type User {
 	User(
 		username: String,
-		token: String
+		token: String,
+		api_key: String
 	)
 }

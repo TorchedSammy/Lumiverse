@@ -343,3 +343,22 @@ input {
 .drop-item-text {
     text-decoration: none;
 }
+
+.featured-carousel-controls {
+	    display: flex;
+    /* justify-content: flex-end; */
+    /* align-items: flex-end; */
+    /* flex-direction: row; */
+    /* flex-wrap: nowrap; */
+    /* width: 20rem; */
+    position: absolute;
+    align-content: flex-end;
+    bottom: 0;
+    right: 0;
+    gap: 3rem;
+}
+
+.featured-carousel-controls .carousel-control-next, .carousel-control-prev {
+	display: unset;
+	position: unset;
+}

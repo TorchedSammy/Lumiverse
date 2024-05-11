@@ -8,11 +8,13 @@ import lustre_http as http
 import lumiverse/config
 import lumiverse/models/router
 import lumiverse/models/auth
+import lumiverse/models/series
 
 pub type Msg {
 	Router(router.Msg)
 	AuthPage(auth.Msg)
 	LoginGot(Result(auth.User, http.HttpError))
+	HomeRecentlyAddedUpdate(Result(List(series.MinimalInfo), http.HttpError))
 }
 
 pub fn head() -> element.Element(a) {

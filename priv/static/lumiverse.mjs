@@ -1144,6 +1144,12 @@ function decode_string(data) {
 function decode_int(data) {
   return Number.isInteger(data) ? new Ok(data) : decoder_error("Int", data);
 }
+function decode_list(data) {
+  if (Array.isArray(data)) {
+    return new Ok(List.fromArray(data));
+  }
+  return data instanceof List ? new Ok(data) : decoder_error("List", data);
+}
 function decode_field(value2, name3) {
   const not_a_map_error = () => decoder_error("Dict", value2);
   if (value2 instanceof Dict || value2 instanceof WeakMap || value2 instanceof Map) {
@@ -1300,6 +1306,50 @@ function do_map(loop$list, loop$fun, loop$acc) {
 }
 function map2(list3, fun) {
   return do_map(list3, fun, toList([]));
+}
+function do_try_map(loop$list, loop$fun, loop$acc) {
+  while (true) {
+    let list3 = loop$list;
+    let fun = loop$fun;
+    let acc = loop$acc;
+    if (list3.hasLength(0)) {
+      return new Ok(reverse(acc));
+    } else {
+      let x = list3.head;
+      let xs = list3.tail;
+      let $ = fun(x);
+      if ($.isOk()) {
+        let y = $[0];
+        loop$list = xs;
+        loop$fun = fun;
+        loop$acc = prepend(y, acc);
+      } else {
+        let error = $[0];
+        return new Error(error);
+      }
+    }
+  }
+}
+function try_map(list3, fun) {
+  return do_try_map(list3, fun, toList([]));
+}
+function drop(loop$list, loop$n) {
+  while (true) {
+    let list3 = loop$list;
+    let n = loop$n;
+    let $ = n <= 0;
+    if ($) {
+      return list3;
+    } else {
+      if (list3.hasLength(0)) {
+        return toList([]);
+      } else {
+        let xs = list3.tail;
+        loop$list = xs;
+        loop$n = n - 1;
+      }
+    }
+  }
 }
 function do_append(loop$first, loop$second) {
   while (true) {
@@ -1471,6 +1521,9 @@ function classify(data) {
 function int(data) {
   return decode_int(data);
 }
+function shallow_list(value2) {
+  return decode_list(value2);
+}
 function any(decoders) {
   return (data) => {
     if (decoders.hasLength(0)) {
@@ -1478,9 +1531,9 @@ function any(decoders) {
         toList([new DecodeError("another type", classify(data), toList([]))])
       );
     } else {
-      let decoder2 = decoders.head;
+      let decoder3 = decoders.head;
       let decoders$1 = decoders.tail;
-      let $ = decoder2(data);
+      let $ = decoder3(data);
       if ($.isOk()) {
         let decoded = $[0];
         return new Ok(decoded);
@@ -1500,13 +1553,13 @@ function all_errors(result) {
 }
 function push_path(error, name3) {
   let name$1 = from(name3);
-  let decoder2 = any(
+  let decoder3 = any(
     toList([string, (x) => {
       return map3(int(x), to_string2);
     }])
   );
   let name$2 = (() => {
-    let $ = decoder2(name$1);
+    let $ = decoder3(name$1);
     if ($.isOk()) {
       let name$22 = $[0];
       return name$22;
@@ -1517,6 +1570,23 @@ function push_path(error, name3) {
     }
   })();
   return error.withFields({ path: prepend(name$2, error.path) });
+}
+function list(decoder_type) {
+  return (dynamic) => {
+    return try$(
+      shallow_list(dynamic),
+      (list3) => {
+        let _pipe = list3;
+        let _pipe$1 = try_map(_pipe, decoder_type);
+        return map_errors(
+          _pipe$1,
+          (_capture) => {
+            return push_path(_capture, "*");
+          }
+        );
+      }
+    );
+  };
 }
 function map_errors(result, f) {
   return map_error(
@@ -1557,6 +1627,26 @@ function decode2(constructor, t1, t2) {
       let a2 = $;
       let b = $1;
       return new Error(concat2(toList([all_errors(a2), all_errors(b)])));
+    }
+  };
+}
+function decode3(constructor, t1, t2, t3) {
+  return (value2) => {
+    let $ = t1(value2);
+    let $1 = t2(value2);
+    let $2 = t3(value2);
+    if ($.isOk() && $1.isOk() && $2.isOk()) {
+      let a2 = $[0];
+      let b = $1[0];
+      let c = $2[0];
+      return new Ok(constructor(a2, b, c));
+    } else {
+      let a2 = $;
+      let b = $1;
+      let c = $2;
+      return new Error(
+        concat2(toList([all_errors(a2), all_errors(b), all_errors(c)]))
+      );
     }
   };
 }
@@ -1998,11 +2088,11 @@ var UnexpectedFormat = class extends CustomType {
     this[0] = x0;
   }
 };
-function do_decode(json, decoder2) {
+function do_decode(json, decoder3) {
   return then$(
     decode(json),
     (dynamic_value) => {
-      let _pipe = decoder2(dynamic_value);
+      let _pipe = decoder3(dynamic_value);
       return map_error(
         _pipe,
         (var0) => {
@@ -2012,8 +2102,8 @@ function do_decode(json, decoder2) {
     }
   );
 }
-function decode3(json, decoder2) {
-  return do_decode(json, decoder2);
+function decode4(json, decoder3) {
+  return do_decode(json, decoder3);
 }
 function to_string6(json) {
   return json_to_string(json);
@@ -2048,6 +2138,18 @@ function from2(effect) {
 }
 function none() {
   return new Effect(toList([]));
+}
+function batch(effects) {
+  return new Effect(
+    fold(
+      effects,
+      toList([]),
+      (b, _use1) => {
+        let a2 = _use1.all;
+        return append(b, a2);
+      }
+    )
+  );
 }
 
 // build/dev/javascript/lustre/lustre/internals/vdom.mjs
@@ -2108,6 +2210,9 @@ function style(properties) {
 }
 function class$(name3) {
   return attribute("class", name3);
+}
+function id(name3) {
+  return attribute("id", name3);
 }
 function href(uri) {
   return attribute("href", uri);
@@ -2588,9 +2693,6 @@ function main(attrs, children) {
 function nav(attrs, children) {
   return element("nav", attrs, children);
 }
-function section(attrs, children) {
-  return element("section", attrs, children);
-}
 function div(attrs, children) {
   return element("div", attrs, children);
 }
@@ -2920,6 +3022,11 @@ function post(url, body, expect) {
     }
   );
 }
+function send2(req, expect) {
+  return from2((_capture) => {
+    return do_send(req, expect, _capture);
+  });
+}
 function response_to_result(response) {
   if (response instanceof Response && (200 <= response.status && response.status <= 299)) {
     let status = response.status;
@@ -2938,7 +3045,7 @@ function response_to_result(response) {
     return new Error(new OtherError(code, body));
   }
 }
-function expect_json(decoder2, to_msg) {
+function expect_json(decoder3, to_msg) {
   return new ExpectTextResponse(
     (response) => {
       let _pipe = response;
@@ -2946,7 +3053,7 @@ function expect_json(decoder2, to_msg) {
       let _pipe$2 = then$(
         _pipe$1,
         (body) => {
-          let $ = decode3(body, decoder2);
+          let $ = decode4(body, decoder3);
           if ($.isOk()) {
             let json = $[0];
             return new Ok(json);
@@ -3005,6 +3112,9 @@ var do_init = (dispatch, options = defaults) => {
     dispatch(uri);
   });
 };
+var do_load = (uri) => {
+  window.location = to_string4(uri);
+};
 var find_anchor = (el2) => {
   if (el2.tagName === "BODY") {
     return null;
@@ -3047,6 +3157,11 @@ function init2(handler) {
     }
   );
 }
+function load(uri) {
+  return from2((_) => {
+    return do_load(uri);
+  });
+}
 
 // build/dev/javascript/lumiverse/ls.ffi.mjs
 function read_localstorage(key) {
@@ -3055,6 +3170,9 @@ function read_localstorage(key) {
 }
 function write_localstorage(key, value2) {
   window.localStorage.setItem(key, value2);
+}
+function remove_localstorage(key) {
+  window.localStorage.removeItem(key);
 }
 
 // build/dev/javascript/lumiverse/lumiverse/common.mjs
@@ -3097,10 +3215,11 @@ var LoginDetails = class extends CustomType {
   }
 };
 var User = class extends CustomType {
-  constructor(username, token) {
+  constructor(username, token, api_key) {
     super();
     this.username = username;
     this.token = token;
+    this.api_key = api_key;
   }
 };
 
@@ -3126,6 +3245,42 @@ var ChangeRoute = class extends CustomType {
   }
 };
 
+// build/dev/javascript/lumiverse/lumiverse/models/series.mjs
+var Manga = class extends CustomType {
+  constructor(name3, id2, image, description, authors, artists, genres, tags, publication) {
+    super();
+    this.name = name3;
+    this.id = id2;
+    this.image = image;
+    this.description = description;
+    this.authors = authors;
+    this.artists = artists;
+    this.genres = genres;
+    this.tags = tags;
+    this.publication = publication;
+  }
+};
+var MinimalInfo = class extends CustomType {
+  constructor(id2, name3) {
+    super();
+    this.id = id2;
+    this.name = name3;
+  }
+};
+var Ongoing = class extends CustomType {
+};
+var Chapter = class extends CustomType {
+  constructor(name3, id2, image) {
+    super();
+    this.name = name3;
+    this.id = id2;
+    this.image = image;
+  }
+};
+function publication_title(publication) {
+  return "ongoing";
+}
+
 // build/dev/javascript/lumiverse/lumiverse/layout.mjs
 var Router = class extends CustomType {
   constructor(x0) {
@@ -3140,6 +3295,12 @@ var AuthPage = class extends CustomType {
   }
 };
 var LoginGot = class extends CustomType {
+  constructor(x0) {
+    super();
+    this[0] = x0;
+  }
+};
+var HomeRecentlyAddedUpdate = class extends CustomType {
   constructor(x0) {
     super();
     this[0] = x0;
@@ -3296,12 +3457,13 @@ function nav2(user) {
 
 // build/dev/javascript/lumiverse/lumiverse/api/api.mjs
 function decoder() {
-  return decode2(
-    (var0, var1) => {
-      return new User(var0, var1);
+  return decode3(
+    (var0, var1, var2) => {
+      return new User(var0, var1, var2);
     },
     field("username", string),
-    field("token", string)
+    field("token", string),
+    field("apiKey", string)
   );
 }
 function login(username, password) {
@@ -3324,31 +3486,83 @@ function login(username, password) {
   );
 }
 function decode_login_json(jd) {
-  let $ = decode3(jd, decoder());
-  if (!$.isOk()) {
-    throw makeError(
-      "assignment_no_match",
-      "lumiverse/api/api",
-      32,
-      "decode_login_json",
-      "Assignment pattern did not match",
-      { value: $ }
-    );
-  }
-  let user = $[0];
-  return user;
+  return decode4(jd, decoder());
 }
 function encode_login_json(user) {
   let _pipe = object2(
     toList([
       ["username", string2(user.username)],
-      ["token", string2(user.token)]
+      ["token", string2(user.token)],
+      ["apiKey", string2(user.api_key)]
     ])
   );
   return to_string6(_pipe);
 }
 
+// build/dev/javascript/lumiverse/lumiverse/api/series.mjs
+function decoder2() {
+  return decode2(
+    (var0, var1) => {
+      return new MinimalInfo(var0, var1);
+    },
+    field("id", int),
+    field("name", string)
+  );
+}
+function recently_added(token) {
+  let $ = to(
+    kavita_api_url + "/api/series/recently-added-v2?pageNumber=1&pageSize=5"
+  );
+  if (!$.isOk()) {
+    throw makeError(
+      "assignment_no_match",
+      "lumiverse/api/series",
+      25,
+      "recently_added",
+      "Assignment pattern did not match",
+      { value: $ }
+    );
+  }
+  let req = $[0];
+  let req$1 = (() => {
+    let _pipe = req;
+    let _pipe$1 = set_method(_pipe, new Post());
+    let _pipe$2 = set_body(
+      _pipe$1,
+      (() => {
+        let _pipe$22 = object2(toList([]));
+        return to_string6(_pipe$22);
+      })()
+    );
+    let _pipe$3 = set_header(
+      _pipe$2,
+      "Authorization",
+      "Bearer " + token
+    );
+    let _pipe$4 = set_header(_pipe$3, "Accept", "application/json");
+    return set_header(_pipe$4, "Content-Type", "application/json");
+  })();
+  return send2(
+    req$1,
+    expect_json(
+      list(decoder2()),
+      (var0) => {
+        return new HomeRecentlyAddedUpdate(var0);
+      }
+    )
+  );
+}
+
 // build/dev/javascript/lumiverse/lumiverse/model.mjs
+var Model = class extends CustomType {
+  constructor(route, user, auth, home) {
+    super();
+    this.route = route;
+    this.user = user;
+    this.auth = auth;
+    this.home = home;
+  }
+};
 var AuthModel = class extends CustomType {
   constructor(auth_message, user_details) {
     super();
@@ -3356,43 +3570,12 @@ var AuthModel = class extends CustomType {
     this.user_details = user_details;
   }
 };
-var Model = class extends CustomType {
-  constructor(route, user, auth) {
+var HomeModel = class extends CustomType {
+  constructor(carousel) {
     super();
-    this.route = route;
-    this.user = user;
-    this.auth = auth;
+    this.carousel = carousel;
   }
 };
-
-// build/dev/javascript/lumiverse/lumiverse/models/series.mjs
-var Manga = class extends CustomType {
-  constructor(name3, id, image, description, authors, artists, genres, tags, publication) {
-    super();
-    this.name = name3;
-    this.id = id;
-    this.image = image;
-    this.description = description;
-    this.authors = authors;
-    this.artists = artists;
-    this.genres = genres;
-    this.tags = tags;
-    this.publication = publication;
-  }
-};
-var Ongoing = class extends CustomType {
-};
-var Chapter = class extends CustomType {
-  constructor(name3, id, image) {
-    super();
-    this.name = name3;
-    this.id = id;
-    this.image = image;
-  }
-};
-function publication_title(publication) {
-  return "ongoing";
-}
 
 // build/dev/javascript/lustre/lustre/event.mjs
 function on2(name3, handler) {
@@ -3619,7 +3802,7 @@ function card(srs) {
 }
 
 // build/dev/javascript/lumiverse/lumiverse/pages/home.mjs
-function page() {
+function page(model) {
   let frieren = new Manga(
     "Sousou no Frieren",
     "sousou-no-frieren",
@@ -3631,16 +3814,127 @@ function page() {
     toList([]),
     new Ongoing()
   );
-  return main(
-    toList([class$("container")]),
+  return div(
+    toList([]),
     toList([
-      section(
-        toList([]),
-        toList([
-          h1(toList([]), toList([text("Latest Updates")])),
-          card(frieren)
-        ])
-      )
+      (() => {
+        let $ = model.user;
+        if ($ instanceof None) {
+          return card(frieren);
+        } else {
+          let user = $[0];
+          return div(
+            toList([
+              id("featuredCarousel"),
+              class$("carousel slide"),
+              attribute("data-bs-ride", "carousel")
+            ]),
+            toList([
+              div(
+                toList([class$("carousel-inner")]),
+                prepend(
+                  (() => {
+                    let $1 = first(model.home.carousel);
+                    if (!$1.isOk()) {
+                      throw makeError(
+                        "assignment_no_match",
+                        "lumiverse/pages/home",
+                        35,
+                        "page",
+                        "Assignment pattern did not match",
+                        { value: $1 }
+                      );
+                    }
+                    let srs = $1[0];
+                    return div(
+                      toList([class$("carousel-item active")]),
+                      toList([
+                        img(
+                          toList([
+                            src(
+                              kavita_api_url + "/api/image/series-cover?seriesId=" + to_string2(
+                                srs.id
+                              ) + "&apiKey=" + user.api_key
+                            )
+                          ])
+                        )
+                      ])
+                    );
+                  })(),
+                  append(
+                    map2(
+                      drop(model.home.carousel, 1),
+                      (srs) => {
+                        return div(
+                          toList([class$("carousel-item")]),
+                          toList([
+                            img(
+                              toList([
+                                src(
+                                  kavita_api_url + "/api/image/series-cover?seriesId=" + to_string2(
+                                    srs.id
+                                  ) + "&apiKey=" + user.api_key
+                                )
+                              ])
+                            )
+                          ])
+                        );
+                      }
+                    ),
+                    toList([
+                      div(
+                        toList([class$("featured-carousel-controls")]),
+                        toList([
+                          button(
+                            toList([
+                              class$("carousel-control-prev"),
+                              attribute(
+                                "data-bs-target",
+                                "#featuredCarousel"
+                              ),
+                              attribute("data-bs-slide", "prev")
+                            ]),
+                            toList([
+                              span(
+                                toList([
+                                  class$(
+                                    "carousel-control-prev-icon"
+                                  )
+                                ]),
+                                toList([])
+                              )
+                            ])
+                          ),
+                          button(
+                            toList([
+                              class$("carousel-control-next"),
+                              attribute(
+                                "data-bs-target",
+                                "#featuredCarousel"
+                              ),
+                              attribute("data-bs-slide", "next")
+                            ]),
+                            toList([
+                              span(
+                                toList([
+                                  class$(
+                                    "carousel-control-next-icon"
+                                  )
+                                ]),
+                                toList([])
+                              )
+                            ])
+                          )
+                        ])
+                      )
+                    ])
+                  )
+                )
+              )
+            ])
+          );
+        }
+      })()
     ])
   );
 }
@@ -3918,31 +4212,90 @@ function on_url_change(uri) {
   let _pipe$1 = new ChangeRoute(_pipe);
   return new Router(_pipe$1);
 }
+function homepage_display(user) {
+  println("im here");
+  if (user instanceof None) {
+    println("nope");
+    return none();
+  } else {
+    let user$1 = user[0];
+    println("getting recently added");
+    return recently_added(user$1.token);
+  }
+}
+function route_effect(model, route) {
+  let eff = (() => {
+    if (route instanceof Home) {
+      return homepage_display(model.user);
+    } else if (route instanceof Logout) {
+      remove_localstorage("kavita_user");
+      let $ = parse2("/");
+      if (!$.isOk()) {
+        throw makeError(
+          "assignment_no_match",
+          "lumiverse",
+          95,
+          "route_effect",
+          "Assignment pattern did not match",
+          { value: $ }
+        );
+      }
+      let home = $[0];
+      return load(home);
+    } else {
+      return none();
+    }
+  })();
+  return eff;
+}
 function init3(_) {
   let kavita_user = read_localstorage("kavita_user");
   let user = (() => {
     if (kavita_user.isOk()) {
       let jsondata = kavita_user[0];
-      return new Some(decode_login_json(jsondata));
+      let $ = decode_login_json(jsondata);
+      if ($.isOk()) {
+        let user2 = $[0];
+        return new Some(user2);
+      } else {
+        remove_localstorage("kavita_user");
+        return new None();
+      }
     } else {
       return new None();
     }
   })();
   debug(user);
   debug(get_current_href());
+  let route = uri_to_route(get_current_href());
+  let model = new Model(
+    route,
+    user,
+    new AuthModel("", new LoginDetails("", "")),
+    new HomeModel(toList([]))
+  );
   return [
-    new Model(
-      uri_to_route(get_current_href()),
-      user,
-      new AuthModel("", new LoginDetails("", ""))
-    ),
-    init2(on_url_change)
+    model,
+    batch(
+      toList([init2(on_url_change), route_effect(model, route)])
+    )
   ];
 }
 function update2(model, msg) {
   if (msg instanceof Router && msg[0] instanceof ChangeRoute) {
     let route = msg[0].route;
-    return [model.withFields({ route }), none()];
+    return [model.withFields({ route }), route_effect(model, route)];
+  } else if (msg instanceof HomeRecentlyAddedUpdate && msg[0].isOk()) {
+    let series = msg[0][0];
+    return [
+      model.withFields({ home: model.home.withFields({ carousel: series }) }),
+      none()
+    ];
+  } else if (msg instanceof HomeRecentlyAddedUpdate && !msg[0].isOk()) {
+    let e = msg[0][0];
+    println("failure");
+    debug(e);
+    return [model, none()];
   } else if (msg instanceof AuthPage && msg[0] instanceof LoginSubmitted) {
     return [
       model,
@@ -3988,23 +4341,17 @@ function update2(model, msg) {
       throw makeError(
         "assignment_no_match",
         "lumiverse",
-        82,
+        131,
         "update",
         "Assignment pattern did not match",
         { value: $ }
       );
     }
     let home = $[0];
+    write_localstorage("kavita_user", encode_login_json(user));
     return [
       model.withFields({ user: new Some(user) }),
-      from2(
-        (dispatch) => {
-          write_localstorage("kavita_user", encode_login_json(user));
-          let _pipe = new ChangeRoute(new Home());
-          let _pipe$1 = new Router(_pipe);
-          return dispatch(_pipe$1);
-        }
-      )
+      load(home)
     ];
   } else {
     let e = msg[0][0];
@@ -4031,15 +4378,15 @@ function view(model) {
   let page4 = (() => {
     let $2 = model.route;
     if ($2 instanceof Home) {
-      return page();
+      return page(model);
     } else if ($2 instanceof Login) {
       return login2(model);
     } else if ($2 instanceof Logout) {
       return logout();
     } else if ($2 instanceof Series) {
-      let id = $2[0];
-      println(id);
-      if (id === "sousou-no-frieren") {
+      let id2 = $2[0];
+      println(id2);
+      if (id2 === "sousou-no-frieren") {
         let frieren = new Manga(
           "Sousou no Frieren",
           "sousou-no-frieren",
@@ -4077,7 +4424,7 @@ function main2() {
     throw makeError(
       "assignment_no_match",
       "lumiverse",
-      31,
+      32,
       "main",
       "Assignment pattern did not match",
       { value: $ }

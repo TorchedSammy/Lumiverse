@@ -12,6 +12,13 @@ pub type Manga {
 	)
 }
 
+pub type MinimalInfo {
+	MinimalInfo(
+		id: Int,
+		name: String
+	)
+}
+
 pub type Publication {
 	Ongoing
 }
