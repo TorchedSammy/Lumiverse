@@ -4,6 +4,7 @@ pub type Route {
 	Login
 	Series(String)
 	NotFound
+	Logout
 }
 
 // Update Function with Routing

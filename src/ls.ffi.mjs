@@ -9,3 +9,7 @@ export function read_localstorage(key) {
 export function write_localstorage(key, value) {
   window.localStorage.setItem(key, value);
 }
+
+export function remove_localstorage(key) {
+  window.localStorage.removeItem(key);
+}

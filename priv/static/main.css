@@ -2,6 +2,7 @@
 
 :root {
 	--primary: #866eff;
+	--fg: #fff;
 	--primary-rgb: 158, 139, 255;
 	--primary-lighter: #a896ff;
 
@@ -306,4 +307,39 @@ a {
 
 input {
 	--bs-focus-ring-color: rgba(125, 100, 255, .5)
+}
+
+.navbar .dropdown-menu {
+	position: absolute;
+	inset: 0px 0px auto auto;
+	transform: translate(0px, 40px);
+}
+
+.dropdown-menu hr {
+    opacity: 1;
+    margin: 0.5rem;
+}
+
+.drop-item {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+    flex-wrap: nowrap;
+    //padding: 0.3em 1em;
+    font-weight: bold;
+    border-radius: 0.2em;
+    transition: background-color 0.1s ease-in-out;
+}
+
+.drop-item:hover {
+    background-color: var(--primary);
+    color: var(--fg);
+}
+
+.drop-item-text, .drop-item-icon {
+    color: var(--fg);
+}
+
+.drop-item-text {
+    text-decoration: none;
 }

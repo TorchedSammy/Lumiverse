@@ -1,6 +1,7 @@
 import gleam/option
 import gleam/result
 import gleam/io
+import gleam/javascript/promise
 import gleam/uri
 import juno
 import lustre
@@ -8,12 +9,14 @@ import lustre/attribute
 import lustre/effect.{type Effect}
 import lustre/element.{type Element}
 import lustre/element/html
+import lustre_http as http
 import modem
 
 import localstorage
 import router as router_handler
 
 import lumiverse/api/api
+import lumiverse/model
 import lumiverse/models/series as series_model
 import lumiverse/models/auth as auth_model
 import lumiverse/models/router
@@ -28,26 +31,25 @@ pub fn main() {
 	let assert Ok(_) = lustre.start(app, "#app", 0)
 }
 
-// Model with Route
-type Model {
-	Model(route: router.Route, user: option.Option(api.User))
-}
-
 fn init(_) {
 	let kavita_user = localstorage.read("kavita_user")
 	let user = case kavita_user {
 		Ok(jsondata) -> {
-			let user = case api.login_from_json(jsondata) {
-				_ -> todo as "this is the wrong type"
-			}
-			option.Some(result.unwrap(user, api.Username("")))
+			option.Some(api.decode_login_json(jsondata))
 		}
 		Error(_) -> option.None
 	}
 	io.debug(user)
 	io.debug(get_route())
 
-	#(Model(router_handler.uri_to_route(get_route()), user), modem.init(on_url_change))
+	#(model.Model(
+		route: router_handler.uri_to_route(get_route()),
+		user: user,
+		auth: model.AuthModel(
+			auth_message: "",
+			user_details: auth_model.LoginDetails("", "")
+		)
+	), modem.init(on_url_change))
 }
 
 
@@ -58,21 +60,56 @@ fn on_url_change(uri: uri.Uri) -> layout.Msg {
 @external(javascript, "./router.ffi.mjs", "get_current_href")
 fn get_route() -> uri.Uri {}
 
-fn update(model: Model, msg: layout.Msg) -> #(Model, Effect(layout.Msg)) {
+fn update(model: model.Model, msg: layout.Msg) -> #(model.Model, Effect(layout.Msg)) {
 	case msg {
-		layout.Router(router.ChangeRoute(route)) -> #(Model(route, model.user), effect.none())
+		layout.Router(router.ChangeRoute(route)) -> #(model.Model(..model, route: route), effect.none())
 		layout.AuthPage(auth_model.LoginSubmitted) -> {
-			io.println("submitted")
-			#(model, effect.none())
+			#(model, api.login(model.auth.user_details.username, model.auth.user_details.password))
+		}
+		layout.AuthPage(auth_model.UsernameUpdated(username)) -> {
+			#(model.Model(..model, auth: model.AuthModel(..model.auth, user_details: auth_model.LoginDetails(..model.auth.user_details, username: username))), effect.none())
+		}
+		layout.AuthPage(auth_model.PasswordUpdated(password)) -> {
+			#(model.Model(..model, auth: model.AuthModel(..model.auth, user_details: auth_model.LoginDetails(..model.auth.user_details, password: password))), effect.none())
+		}
+		layout.AuthPage(auth_model.AuthMessage(message)) -> {
+			io.println("im infected")
+			#(model.Model(..model, auth: model.AuthModel(..model.auth, auth_message: message)), effect.none())
 		}
 		layout.AuthPage(_) -> #(model, effect.none())
+		layout.LoginGot(Ok(user)) -> {
+			io.println("we got a user!")
+			let assert Ok(home) = uri.parse("/")
+			#(model.Model(..model, user: option.Some(user)), effect.from(fn(dispatch) {
+				localstorage.write("kavita_user", api.encode_login_json(user))
+				router.ChangeRoute(router.Home) |> layout.Router |> dispatch
+			}))
+		}
+		layout.LoginGot(Error(e)) -> {
+			io.println("this is sad")
+			let eff = case e {
+				http.Unauthorized -> {
+					io.println("not authorized??")
+					effect.from(fn(dispatch) {
+						"Incorrect username or password"
+						|> auth_model.AuthMessage
+						|> layout.AuthPage
+						|> dispatch
+					})
+				}
+				_ -> effect.none()
+			}
+
+			#(model, eff)
+		}
 	}
 }
 
-fn view(model: Model) -> Element(layout.Msg) {
+fn view(model: model.Model) -> Element(layout.Msg) {
 	let page = case model.route {
 		router.Home -> home.page()
-		router.Login -> auth.login()
+		router.Login -> auth.login(model)
+		router.Logout -> auth.logout()
 		router.Series(id) -> {
 			io.println(id)
 			// this is just a test case,
@@ -101,6 +138,7 @@ fn view(model: Model) -> Element(layout.Msg) {
 
 	case model.route {
 		router.Login -> page
+		router.Logout -> page
 		router.NotFound -> page
 		_ -> html.div([], [
 			layout.nav(model.user),
