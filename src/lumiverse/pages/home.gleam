@@ -70,20 +70,22 @@ fn carousel_item(model: model.Model, user: auth_model.User, srs: series_model.Mi
 	let assert Ok(metadata) = dict.get(model.metadatas, srs.id)
 
 	html.div([attribute.class("carousel-item" <> active_string)], [
-		html.div([attribute.class("series-bg-image bg-image-backdrop"), attribute.style([
-			#("background-image", "url(" <> cover_url <> ")"),
-			#("height", "28.8rem"),
-		])], []),
-		html.div([attribute.class("series-bg-image bg-image-backdrop"), attribute.style([
-			#("background", "linear-gradient(to bottom,rgb(var(--background-primary-rgb), .6),rgb(var(--background-primary-rgb)))"),
-			#("height", "28.8rem"),
-		])], []),
-		html.div([attribute.class("item-detail")], [
-			html.img([attribute.src(cover_url)]),
-			html.div([attribute.class("item-text")], [
-				html.h2([], [element.text(srs.name)]),
-				tag.list(list.append(list.map(metadata.tags, fn(t) {t.title}), list.map(metadata.genres, fn(t) {t.title}))),
-				html.p([], [element.text(metadata.summary)]),
+		html.a([attribute.href("/series/" <> int.to_string(srs.id))], [
+			html.div([attribute.class("series-bg-image bg-image-backdrop"), attribute.style([
+				#("background-image", "url(" <> cover_url <> ")"),
+				#("height", "28.8rem"),
+			])], []),
+			html.div([attribute.class("series-bg-image bg-image-backdrop"), attribute.style([
+				#("background", "linear-gradient(to bottom,rgb(var(--background-primary-rgb), .6),rgb(var(--background-primary-rgb)))"),
+				#("height", "28.8rem"),
+			])], []),
+			html.div([attribute.class("item-detail")], [
+				html.img([attribute.src(cover_url)]),
+				html.div([attribute.class("item-text")], [
+					html.h2([], [element.text(srs.name)]),
+					tag.list(list.append(list.map(metadata.tags, fn(t) {t.title}), list.map(metadata.genres, fn(t) {t.title}))),
+					html.p([], [element.text(metadata.summary)]),
+				])
 			])
 		])
 	])

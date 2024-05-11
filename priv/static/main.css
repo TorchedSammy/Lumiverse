@@ -390,6 +390,10 @@ input {
 	height: 20rem;
 }
 
+.carousel-item a {
+	color: inherit;
+}
+
 .featued-carousel .item-text {
 	display: grid;
 }
