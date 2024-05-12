@@ -118,13 +118,21 @@ fn real_page(model: model.Model) -> element.Element(layout.Msg) {
 					let assert Ok(srs) = serie
 					let assert Ok(metadata) = dict.get(model.metadatas, srs.id)
 
-					html.div([attribute.class("d-flex tagandpub")], [
-						tag.list(list.append(list.map(metadata.tags, fn(t) {t.title}), list.map(metadata.genres, fn(t) {t.title}))),
-						html.div([attribute.class("publication")], [
-							html.span([attribute.class("icon-circle"), attribute.attribute("data-publication", series.publication_title(metadata.publication_status))], []),
-							html.span([attribute.class("publication-text")], [element.text("Publication: " <> series.publication_title(metadata.publication_status))])
-						])
-					])
+					html.div([attribute.class("d-flex tagandpub")], list.append(
+						{
+							let tags = list.append(list.map(metadata.tags, fn(t) {t.title}), list.map(metadata.genres, fn(t) {t.title}))
+							case list.length(tags) {
+								0 -> []
+								_ -> [tag.list(tags)]
+							}
+						},
+						[
+							html.div([attribute.class("publication")], [
+								html.span([attribute.class("icon-circle"), attribute.attribute("data-publication", series.publication_title(metadata.publication_status))], []),
+								html.span([attribute.class("publication-text")], [element.text("Publication: " <> series.publication_title(metadata.publication_status))])
+							])
+						]
+					))
 				}
 				option.None -> html.div([attribute.class("d-flex tagandpub")], [
 					html.div([attribute.class("d-flex tag-list col-6 placeholder placeholder-glow placeholder-sm")], []),
