@@ -2,9 +2,11 @@ import gleam/fetch
 import gleam/dynamic
 import gleam/http
 import gleam/http/request
+import gleam/http/response
 import gleam/int
 import gleam/json
 import gleam/option
+import gleam/result
 
 import gleam/io
 
@@ -78,4 +80,24 @@ pub fn save_progress(token: String, progress: reader.Progress) {
 	|> request.set_header("Content-Type", "application/json")
 
 	lustre_http.send(req, lustre_http.expect_anything(layout.ProgressUpdated))
+}
+
+pub fn next_chapter(token: String, series_id: Int, volume_id: Int, chapter_id: Int) {
+	let assert Ok(req) = request.to(common.kavita_api_url <> "/api/reader/next-chapter?seriesId=" <> int.to_string(series_id) <> "&volumeId=" <> int.to_string(volume_id) <> "&currentChapterId=" <> int.to_string(chapter_id))
+
+	let req = req
+	|> request.set_method(http.Get)
+	|> request.set_body(json.object([]) |> json.to_string)
+	|> request.set_header("Authorization", "Bearer " <> token)
+	|> request.set_header("Accept", "application/json")
+	|> request.set_header("Content-Type", "application/json")
+
+	lustre_http.send(req, lustre_http.expect_text_response(
+		fn(res: response.Response(String)) {
+			int.base_parse(res.body, 10)
+			|> result.replace_error(lustre_http.OtherError(7, res.body <> " is not a number.."))
+		},
+		fn(e) { e },
+		fn(res) {layout.NextChapterRetrieved(res)}
+	))
 }

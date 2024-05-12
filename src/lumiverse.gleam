@@ -4,6 +4,7 @@ import gleam/result
 import gleam/list
 import gleam/int
 import gleam/io
+import gleam/order
 import gleam/javascript/promise
 import gleam/uri
 import juno
@@ -72,7 +73,8 @@ fn init(_) {
 		series: dict.new(),
 		viewing_series: option.None,
 		reader_progress: option.None,
-		continue_point: option.None
+		continue_point: option.None,
+		next_chapter: option.None
 	)
 
 	#(model, effect.batch([modem.init(on_url_change), route_effect(model, route)]))
@@ -242,9 +244,23 @@ fn update(model: model.Model, msg: layout.Msg) -> #(model.Model, Effect(layout.M
 			let assert option.Some(user) = model.user
 			let assert option.Some(current_progress) = model.reader_progress
 			let advanced_progress = reader_model.Progress(..current_progress, page_number: current_progress.page_number + 1)
-			reader_util.scroll()
-			#(model.Model(..model, reader_progress: option.Some(advanced_progress)), reader.save_progress(user.token, advanced_progress))
+			let assert option.Some(cont_point) = model.continue_point
+			case int.compare(advanced_progress.page_number + 1, cont_point.pages) {
+				order.Gt -> {
+					let assert Ok(next_uri) = case model.next_chapter {
+						option.None -> uri.parse("/series/" <> int.to_string(current_progress.series_id))
+						option.Some(next_chapter) -> uri.parse("/chapter/" <> int.to_string(next_chapter))
+					}
+					#(model.Model(..model, reader_progress: option.None), modem.load(next_uri))
+				}
+				_ -> {
+					reader_util.scroll()
+					#(model.Model(..model, reader_progress: option.Some(advanced_progress)), reader.save_progress(user.token, advanced_progress))
+				}
+			}
 		}
+		layout.NextChapterRetrieved(Ok(next)) -> #(model.Model(..model, next_chapter: option.Some(next)), effect.none())
+		layout.NextChapterRetrieved(Error(_)) -> todo as "handle next chapter fail"
 		layout.ProgressUpdated(Ok(Nil)) -> #(model, effect.none())
 		layout.ProgressUpdated(Error(_)) -> todo as "handle if progress update failed"
 		layout.ContinuePointRetrieved(Ok(cont_point)) -> {
@@ -262,7 +278,7 @@ fn update(model: model.Model, msg: layout.Msg) -> #(model.Model, Effect(layout.M
 			#(model.Model(
 				..model,
 				reader_progress: option.Some(progress)
-			), effect.batch([reader.continue_point(user.token, progress.series_id), series_and_metadata(user.token, progress.series_id)]))
+			), effect.batch([reader.next_chapter(user.token, progress.series_id, progress.volume_id, progress.chapter_id), reader.continue_point(user.token, progress.series_id), series_and_metadata(user.token, progress.series_id)]))
 		}
 		layout.ProgressRetrieved(Error(_)) -> todo as "handle progress error??"
 	}

@@ -33,6 +33,7 @@ pub type Msg {
 	ProgressUpdated(Result(Nil, http.HttpError))
 	ContinuePointRetrieved(Result(reader.ContinuePoint, http.HttpError))
 	ProgressRetrieved(Result(reader.Progress, http.HttpError))
+	NextChapterRetrieved(Result(Int, http.HttpError))
 }
 
 pub fn head() -> element.Element(a) {
