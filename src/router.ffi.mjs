@@ -73,10 +73,10 @@ const find_anchor = (el) => {
 
 const uri_from_url = (url) => {
   return new Uri(
-    /* scheme   */ new (url.protocol ? Some : None)(url.protocol),
+    /* scheme   */ new (url.protocol ? Some : None)(url.protocol.slice(0, -1)),
     /* userinfo */ new None(),
-    /* host     */ new (url.host ? Some : None)(url.host),
-    /* port     */ new (url.port ? Some : None)(url.port),
+    /* host     */ new (url.host ? Some : None)(url.host.split(":")[0]),
+    /* port     */ new (url.port ? Some : None)(parseInt(url.port)),
     /* path     */ url.pathname,
     /* query    */ new (url.search ? Some : None)(url.search),
     /* fragment */ new (url.hash ? Some : None)(url.hash.slice(1)),

@@ -27,7 +27,7 @@ pub fn login(username: String, password: String) {
 		#("apiKey", json.string(""))
 	])
 
-	http.post(router.root_url() <> "/api/account/login", req_json, http.expect_json(decoder(), layout.LoginGot))
+	http.post(router.direct("/api/account/login"), req_json, http.expect_json(decoder(), layout.LoginGot))
 }
 
 pub fn decode_login_json(jd: String) -> Result(auth.User, json.DecodeError) {

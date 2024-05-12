@@ -54,7 +54,7 @@ fn carousel_item(model: model.Model, user: auth_model.User, srs: series_model.Mi
 		True -> " active"
 		False -> ""
 	}
-	let cover_url = router.root_url() <> "/api/image/series-cover?seriesId=" <> int.to_string(srs.id) <> "&apiKey=" <> user.api_key
+	let cover_url = router.direct("/api/image/series-cover?seriesId=" <> int.to_string(srs.id) <> "&apiKey=" <> user.api_key)
 	let assert Ok(metadata) = dict.get(model.metadatas, srs.id)
 
 	html.div([attribute.class("carousel-item" <> active_string)], [

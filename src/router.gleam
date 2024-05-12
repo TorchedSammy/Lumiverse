@@ -20,16 +20,27 @@ pub fn uri_to_route(uri: uri.Uri) -> router.Route {
 	}
 }
 
-pub fn root_url() -> String {
+pub fn root_uri() -> uri.Uri {
 	let route = get_route()
-	let assert option.Some(host) = route.host
-	case host {
-		"localhost:1234" -> {
+	io.debug(route.host)
+	io.debug(route.port)
+	case route.host, route.port {
+		option.Some("localhost"), option.Some(1234) -> {
 			let assert Ok(local) = uri.parse(common.kavita_dev_api)
-			common.kavita_dev_api
+			local
 		}
-		_ -> uri.to_string(route)
+		_, _ -> route
 	}
+}
+
+pub fn root_url() -> String {
+	root_uri() |> uri.to_string
+}
+
+pub fn direct(rel: String) -> String {
+	let assert Ok(rel_url) = uri.parse(rel)
+	let assert Ok(direction) = uri.merge(root_uri(), rel_url)
+	uri.to_string(direction)
 }
 
 @external(javascript, "./router.ffi.mjs", "get_current_href")

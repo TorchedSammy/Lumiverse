@@ -25,7 +25,7 @@ pub fn page(model: model.Model) -> element.Element(layout.Msg) {
 		])
 		option.Some(progress) -> {
 			let assert option.Some(user) = model.user
-			let page_image = router.root_url() <> "/api/reader/image?chapterId=" <> int.to_string(progress.chapter_id) <> "&page=" <> int.to_string(progress.page_number) <> "&apiKey=" <> user.api_key
+			let page_image = router.direct("/api/reader/image?chapterId=" <> int.to_string(progress.chapter_id) <> "&page=" <> int.to_string(progress.page_number) <> "&apiKey=" <> user.api_key)
 
 			html.div([attribute.class("d-flex flex-column"), attribute.id("reader-page"), attribute.style([
 				#("position", "relative")

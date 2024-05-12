@@ -209,7 +209,10 @@ fn update(model: model.Model, msg: layout.Msg) -> #(model.Model, Effect(layout.M
 						|> dispatch
 					})
 				}
-				_ -> todo as "handle login error not being unauthorized"
+				e -> {
+					io.debug(e)
+					todo as "handle login error not being unauthorized"
+				}
 			}
 
 			#(model, eff)
