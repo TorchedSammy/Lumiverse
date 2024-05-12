@@ -15,3 +15,13 @@ pub type ContinuePoint {
 		pages: Int
 	)
 }
+
+pub type ChapterInfo {
+	ChapterInfo(
+		volume_id: Int,
+		series_id: Int,
+		library_id: Int,
+		pages: Int,
+		subtitle: String
+	)
+}

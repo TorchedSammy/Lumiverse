@@ -33,6 +33,7 @@ pub type Msg {
 	ProgressUpdated(Result(Nil, http.HttpError))
 	ContinuePointRetrieved(Result(reader.ContinuePoint, http.HttpError))
 	ProgressRetrieved(Result(reader.Progress, http.HttpError))
+	ChapterInfoRetrieved(Result(reader.ChapterInfo, http.HttpError))
 	NextChapterRetrieved(Result(Int, http.HttpError))
 }
 

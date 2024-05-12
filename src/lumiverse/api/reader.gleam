@@ -35,6 +35,17 @@ fn continue_decoder() {
 		dynamic.field("pages", dynamic.int),
 	)
 }
+
+fn chapter_info_decoder() {
+	dynamic.decode5(
+		reader.ChapterInfo,
+		dynamic.field("volumeId", dynamic.int),
+		dynamic.field("seriesId", dynamic.int),
+		dynamic.field("libraryId", dynamic.int),
+		dynamic.field("pages", dynamic.int),
+		dynamic.field("subtitle", dynamic.string),
+	)
+}
 pub fn get_progress(token: String, chapter_id: Int) {
 	let assert Ok(req) = request.to(router.direct("/api/reader/get-progress?chapterId=" <> int.to_string(chapter_id)))
 
@@ -100,4 +111,17 @@ pub fn next_chapter(token: String, series_id: Int, volume_id: Int, chapter_id: I
 		fn(e) { e },
 		fn(res) {layout.NextChapterRetrieved(res)}
 	))
+}
+
+pub fn chapter_info(token: String, chapter_id: Int) {
+	let assert Ok(req) = request.to(router.direct("/api/reader/chapter-info?chapterId=" <> int.to_string(chapter_id)))
+
+	let req = req
+	|> request.set_method(http.Get)
+	|> request.set_body(json.object([]) |> json.to_string)
+	|> request.set_header("Authorization", "Bearer " <> token)
+	|> request.set_header("Accept", "application/json")
+	|> request.set_header("Content-Type", "application/json")
+
+	lustre_http.send(req, lustre_http.expect_json(chapter_info_decoder(), layout.ChapterInfoRetrieved))
 }

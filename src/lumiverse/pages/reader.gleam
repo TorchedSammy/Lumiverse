@@ -45,14 +45,14 @@ pub fn page(model: model.Model) -> element.Element(layout.Msg) {
 							]
 						}
 					}),
-					html.div([attribute.class("row gap-3 p-3 mb-2")], case model.viewing_series, model.continue_point {
-						option.Some(serie), option.Some(cont_point) -> {
+					html.div([attribute.class("row gap-3 p-3 mb-2")], case model.viewing_series, model.continue_point, model.chapter_info {
+						option.Some(serie), option.Some(cont_point), option.Some(inf) -> {
 							[
-								html.span([attribute.class("badge text-bg-secondary fs-6 col")], [element.text("Page " <> int.to_string(progress.page_number + 1) <> " / " <> int.to_string(cont_point.pages))]),
+								html.span([attribute.class("badge text-bg-secondary fs-6 col")], [element.text("Page " <> int.to_string(progress.page_number + 1) <> " / " <> int.to_string(inf.pages))]),
 								html.span([attribute.class("badge text-bg-secondary fs-6 col")], [element.text("Menu")]),
 							]
 						}
-						_, _ -> {
+						_, _, _ -> {
 							[
 								html.span([attribute.class("fs-6 col placeholder placeholder-glow")], [element.text("...")]),
 								html.span([attribute.class("fs-6 col placeholder placeholder-glow")], [element.text("Menu")]),

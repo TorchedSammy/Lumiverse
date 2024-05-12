@@ -74,7 +74,8 @@ fn init(_) {
 		viewing_series: option.None,
 		reader_progress: option.None,
 		continue_point: option.None,
-		next_chapter: option.None
+		next_chapter: option.None,
+		chapter_info: option.None
 	)
 
 	#(model, effect.batch([modem.init(on_url_change), route_effect(model, route)]))
@@ -278,9 +279,22 @@ fn update(model: model.Model, msg: layout.Msg) -> #(model.Model, Effect(layout.M
 			#(model.Model(
 				..model,
 				reader_progress: option.Some(progress)
-			), effect.batch([reader.next_chapter(user.token, progress.series_id, progress.volume_id, progress.chapter_id), reader.continue_point(user.token, progress.series_id), series_and_metadata(user.token, progress.series_id)]))
+			), reader.chapter_info(user.token, progress.chapter_id))
 		}
 		layout.ProgressRetrieved(Error(_)) -> todo as "handle progress error??"
+		layout.ChapterInfoRetrieved(Ok(inf)) -> {
+			let assert option.Some(user) = model.user
+			let assert option.Some(prog) = model.reader_progress
+			#(model.Model(
+				..model,
+				chapter_info: option.Some(inf)
+			), effect.batch([
+				reader.next_chapter(user.token, inf.series_id, inf.volume_id, prog.chapter_id),
+				reader.continue_point(user.token, inf.series_id),
+				series_and_metadata(user.token, inf.series_id)]
+			))
+		}
+		layout.ChapterInfoRetrieved(Error(_)) -> todo as "handle chapter info error"
 	}
 }
 
