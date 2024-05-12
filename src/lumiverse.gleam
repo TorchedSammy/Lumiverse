@@ -17,14 +17,18 @@ import modem
 
 import localstorage
 import router as router_handler
+import reader_util
 
 import lumiverse/api/api
+import lumiverse/api/reader
 import lumiverse/api/series as series_req
 import lumiverse/model
 import lumiverse/models/series as series_model
 import lumiverse/models/auth as auth_model
+import lumiverse/models/reader as reader_model
 import lumiverse/models/router
 import lumiverse/layout
+import lumiverse/pages/reader as reader_page
 import lumiverse/pages/home
 import lumiverse/pages/series as series_page
 import lumiverse/pages/auth
@@ -52,6 +56,7 @@ fn init(_) {
 	io.debug(get_route())
 
 	let route = router_handler.uri_to_route(get_route())
+
 	let model = model.Model(
 		route: route,
 		user: user,
@@ -65,7 +70,9 @@ fn init(_) {
 		),
 		metadatas: dict.new(),
 		series: dict.new(),
-		viewing_series: option.None
+		viewing_series: option.None,
+		reader_progress: option.None,
+		continue_point: option.None
 	)
 
 	#(model, effect.batch([modem.init(on_url_change), route_effect(model, route)]))
@@ -103,20 +110,28 @@ fn route_effect(model: model.Model, route: router.Route) -> Effect(layout.Msg) {
 		}
 		router.Series(id) -> case model.user {
 			option.None -> {
-			io.println("no siri")
+				io.println("no siri")
 				effect.none()
 			}
 			option.Some(user) -> {
 				io.println("getting serie")
 				let id_parsed = int.base_parse(id, 10)
 				case id_parsed {
-					Ok(id_int) -> effect.batch([series_req.series(id_int, user.token), series_req.metadata(id_int, user.token)])
+					Ok(id_int) -> series_and_metadata(user.token, id_int)
 					Error(_) -> effect.from(fn(dispatch) { router.NotFound |> router.ChangeRoute |> layout.Router |> dispatch})
 				}
 			}
 		}
+		router.Reader(id) -> case model.user {
+			option.None -> todo as "handle being in reader while not logged in"
+			option.Some(user) -> reader.get_progress(user.token, id)
+		}
 		_ -> effect.none()
 	}
+}
+
+fn series_and_metadata(token: String, id: Int) -> Effect(layout.Msg) {
+	effect.batch([series_req.series(id, token), series_req.metadata(id, token)])
 }
 
 fn update(model: model.Model, msg: layout.Msg) -> #(model.Model, Effect(layout.Msg)) {
@@ -145,9 +160,14 @@ fn update(model: model.Model, msg: layout.Msg) -> #(model.Model, Effect(layout.M
 			#(model, effect.none())
 		}
 		layout.SeriesRetrieved(maybe_serie) -> {
+			let series_store = case maybe_serie {
+				Ok(serie) -> model.series |> dict.insert(serie.id, serie)
+				Error(_) -> model.series
+			}
 			#(model.Model(
 				..model,
-				viewing_series: option.Some(maybe_serie)
+				viewing_series: option.Some(maybe_serie),
+				series: series_store
 			), effect.none())
 		}
 		layout.SeriesMetadataRetrieved(Ok(metadata)) -> {
@@ -190,11 +210,61 @@ fn update(model: model.Model, msg: layout.Msg) -> #(model.Model, Effect(layout.M
 						|> dispatch
 					})
 				}
-				_ -> effect.none()
+				_ -> todo as "handle login error not being unauthorized"
 			}
 
 			#(model, eff)
 		}
+		layout.Read -> {
+			case model.user {
+				option.Some(user) -> {
+					let assert option.Some(Ok(serie)) = model.viewing_series
+					#(model, reader.continue_point(user.token, serie.id))
+				}
+				option.None -> todo as "decide what should be done if read is used while not logged in"
+			}
+		}
+		layout.ReaderPrevious -> {
+			io.println("WAIT GO BACK")
+			let assert option.Some(current_progress) = model.reader_progress
+			case current_progress.page_number - 1 {
+				-1 -> #(model, effect.none())
+				num -> {
+					let assert option.Some(user) = model.user
+					let advanced_progress = reader_model.Progress(..current_progress, page_number: num)
+					reader_util.scroll()
+					#(model.Model(..model, reader_progress: option.Some(advanced_progress)), reader.save_progress(user.token, advanced_progress))
+				}
+			}
+		}
+		layout.ReaderNext -> {
+			io.println("next, reader!")
+			let assert option.Some(user) = model.user
+			let assert option.Some(current_progress) = model.reader_progress
+			let advanced_progress = reader_model.Progress(..current_progress, page_number: current_progress.page_number + 1)
+			reader_util.scroll()
+			#(model.Model(..model, reader_progress: option.Some(advanced_progress)), reader.save_progress(user.token, advanced_progress))
+		}
+		layout.ProgressUpdated(Ok(Nil)) -> #(model, effect.none())
+		layout.ProgressUpdated(Error(_)) -> todo as "handle if progress update failed"
+		layout.ContinuePointRetrieved(Ok(cont_point)) -> {
+			#(model.Model(..model, continue_point: option.Some(cont_point)), case model.route {
+				router.Reader(_) -> effect.none()
+				_ -> {
+					let assert Ok(reader) = uri.parse("/chapter/" <> int.to_string(cont_point.id))
+					modem.load(reader)
+				}
+			})
+		}
+		layout.ContinuePointRetrieved(Error(_)) -> todo as "handle continue point having an error"
+		layout.ProgressRetrieved(Ok(progress)) -> {
+			let assert option.Some(user) = model.user
+			#(model.Model(
+				..model,
+				reader_progress: option.Some(progress)
+			), effect.batch([reader.continue_point(user.token, progress.series_id), series_and_metadata(user.token, progress.series_id)]))
+		}
+		layout.ProgressRetrieved(Error(_)) -> todo as "handle progress error??"
 	}
 }
 
@@ -204,6 +274,7 @@ fn view(model: model.Model) -> Element(layout.Msg) {
 		router.Login -> auth.login(model)
 		router.Logout -> auth.logout()
 		router.Series(id) -> series_page.page(model)
+		router.Reader(id) -> reader_page.page(model)
 		router.NotFound -> not_found.page()
 	}
 
@@ -212,7 +283,7 @@ fn view(model: model.Model) -> Element(layout.Msg) {
 		router.Logout -> page
 		router.NotFound -> page
 		_ -> html.div([], [
-			layout.nav(model.user),
+			layout.nav(model),
 			page,
 		])
 	}

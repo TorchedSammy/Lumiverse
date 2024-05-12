@@ -5,6 +5,7 @@ pub type Route {
 	Series(String)
 	NotFound
 	Logout
+	Reader(chapter_id: Int)
 }
 
 // Update Function with Routing

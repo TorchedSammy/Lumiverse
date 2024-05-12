@@ -3,6 +3,7 @@ import gleam/option
 
 import lustre_http as http
 
+import lumiverse/models/reader
 import lumiverse/models/router
 import lumiverse/models/auth
 import lumiverse/models/series
@@ -15,7 +16,9 @@ pub type Model {
 		home: HomeModel,
 		metadatas: dict.Dict(Int, series.Metadata),
 		series: dict.Dict(Int, series.MinimalInfo),
-		viewing_series: option.Option(Result(series.MinimalInfo, http.HttpError))
+		viewing_series: option.Option(Result(series.MinimalInfo, http.HttpError)),
+		reader_progress: option.Option(reader.Progress),
+		continue_point: option.Option(reader.ContinuePoint)
 	)
 }
 

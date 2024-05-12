@@ -37,6 +37,10 @@
 	--publication-ongoing: var(--color-green);
 }
 
+.badge {
+	--bs-badge-border-radius: 0.2rem;
+}
+
 .navbar {
 	background-color: rgba(var(--background-primary-rgb), 0.5) !important;
 	transition: backdrop-filter 0.2s ease-in-out, box-shadow 0.2s ease-in-out, background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;
@@ -44,7 +48,7 @@
 	z-index: 1;
 }
 
-html:not([data-scroll='0']) .navbar {
+html:not([data-scroll='0']) .navbar-transition {
 	border-bottom: var(--primary) var(--pico-border-width) solid;
 	border-color: var(--primary) !important;
 	backdrop-filter: blur(5px);
@@ -52,7 +56,7 @@ html:not([data-scroll='0']) .navbar {
 }
 
 .navbar {
-	margin-bottom: 0.8em;
+	//margin-bottom: 0.8em;
 	//justify-content: space-between;
 }
 
@@ -264,10 +268,6 @@ a {
 	flex-wrap: wrap;
 	column-gap: 0.5rem;
 	row-gap: 0.2rem;
-}
-
-.tag {
-	--bs-badge-border-radius: 0.2rem;
 }
 
 .btn {

@@ -7,6 +7,7 @@ import gleam/string
 import lustre/attribute
 import lustre/element
 import lustre/element/html
+import lustre/event
 
 import lumiverse/common
 import lumiverse/model
@@ -104,7 +105,10 @@ fn real_page(model: model.Model) -> element.Element(layout.Msg) {
 				]
 			}),
 			html.div([attribute.class("buttons")], [
-				html.button([attribute.attribute("type", "button"), attribute.class("btn btn-primary btn-lg" <> placeholder_class)], [
+				html.button([event.on_click(layout.Read), attribute.attribute("type", "button"), attribute.class("btn btn-lg" <> placeholder_class <> case model.viewing_series {
+					option.Some(_) -> " btn-primary"
+					option.None -> "disabled"
+				})], [
 					html.span([attribute.class("icon-book")], []),
 					element.text("Start Reading")
 				])

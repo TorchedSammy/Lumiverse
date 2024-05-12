@@ -6,17 +6,33 @@ import lustre/element/html
 import lustre_http as http
 
 import lumiverse/config
-import lumiverse/models/router
+import lumiverse/model
 import lumiverse/models/auth
+import lumiverse/models/reader
+import lumiverse/models/router
 import lumiverse/models/series
 
+// TODO: put messages related to a specific page in separate source
+// there is no reason for LoginGot to not be outside auth.Msg
+// TODO TODO: handle specific messages where they are declared
 pub type Msg {
 	Router(router.Msg)
+	// Auth
 	AuthPage(auth.Msg)
 	LoginGot(Result(auth.User, http.HttpError))
+
+	//Home
 	HomeRecentlyAddedUpdate(Result(List(series.MinimalInfo), http.HttpError))
 	SeriesRetrieved(Result(series.MinimalInfo, http.HttpError))
 	SeriesMetadataRetrieved(Result(series.Metadata, http.HttpError))
+
+	// Reader
+	Read
+	ReaderPrevious
+	ReaderNext
+	ProgressUpdated(Result(Nil, http.HttpError))
+	ContinuePointRetrieved(Result(reader.ContinuePoint, http.HttpError))
+	ProgressRetrieved(Result(reader.Progress, http.HttpError))
 }
 
 pub fn head() -> element.Element(a) {
@@ -46,8 +62,11 @@ pub fn head() -> element.Element(a) {
 	])
 }
 
-pub fn nav(user: option.Option(auth.User)) -> element.Element(a) {
-	html.nav([attribute.class("navbar fixed-top navbar-expand-lg border-bottom")], [
+pub fn nav(model: model.Model) -> element.Element(a) {
+	html.nav([attribute.class("navbar navbar-expand-lg border-bottom" <> case model.route {
+		router.Reader(_) -> ""
+		_ -> " fixed-top mb-3 navbar-transition"
+	})], [
 		html.div([attribute.class("container-fluid")], [
 			html.a([attribute.class("navbar-brand"), attribute.href("/")], [
 				html.img([
@@ -57,7 +76,7 @@ pub fn nav(user: option.Option(auth.User)) -> element.Element(a) {
 				html.span([attribute.class("navbar-brand-text")], [element.text("Lumiverse")]),
 			]),
 			html.div([attribute.class("navbar-nav")], [
-				case user {
+				case model.user {
 					option.Some(user) -> html.div([attribute.class("dropdown")], [
 						html.button([attribute.class("btn btn-secondary dropdown-toggle"), attribute.attribute("data-bs-toggle", "dropdown"), attribute.attribute("type", "button")], [
 							element.text(user.username)
