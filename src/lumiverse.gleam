@@ -49,7 +49,6 @@ fn init(_) {
 		}
 		Error(_) -> option.None
 	}
-	io.debug(user)
 	io.debug(get_route())
 
 	let route = router_handler.uri_to_route(get_route())
@@ -123,7 +122,7 @@ fn route_effect(model: model.Model, route: router.Route) -> Effect(layout.Msg) {
 fn update(model: model.Model, msg: layout.Msg) -> #(model.Model, Effect(layout.Msg)) {
 	case msg {
 		layout.Router(router.ChangeRoute(route)) -> {
-			#(model.Model(..model, route: route), route_effect(model, route))
+			#(model.Model(..model, route: route, viewing_series: option.None), route_effect(model, route))
 		}
 		layout.HomeRecentlyAddedUpdate(Ok(series)) -> {
 			case model.user {
