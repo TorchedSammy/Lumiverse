@@ -54,9 +54,9 @@ fn init(_) {
 		}
 		Error(_) -> option.None
 	}
-	io.debug(get_route())
+	io.debug(router_handler.get_route())
 
-	let route = router_handler.uri_to_route(get_route())
+	let route = router_handler.uri_to_route(router_handler.get_route())
 
 	let model = model.Model(
 		route: route,
@@ -84,9 +84,6 @@ fn init(_) {
 fn on_url_change(uri: uri.Uri) -> layout.Msg {
 	router_handler.uri_to_route(uri) |> router.ChangeRoute |> layout.Router
 }
-
-@external(javascript, "./router.ffi.mjs", "get_current_href")
-fn get_route() -> uri.Uri {}
 
 fn homepage_display(user: option.Option(auth_model.User)) -> Effect(layout.Msg) {
 	io.println("im here")

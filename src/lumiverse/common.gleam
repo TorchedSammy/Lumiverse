@@ -1,1 +1,1 @@
-pub const kavita_api_url = "http://localhost:5000"
+pub const kavita_dev_api = "http://localhost:5000"

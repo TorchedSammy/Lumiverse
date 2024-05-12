@@ -1,6 +1,9 @@
+import gleam/io
 import gleam/int
+import gleam/option
 import gleam/uri
 
+import lumiverse/common
 import lumiverse/models/router
 
 pub fn uri_to_route(uri: uri.Uri) -> router.Route {
@@ -16,3 +19,18 @@ pub fn uri_to_route(uri: uri.Uri) -> router.Route {
 		_ -> router.NotFound
 	}
 }
+
+pub fn root_url() -> String {
+	let route = get_route()
+	let assert option.Some(host) = route.host
+	case host {
+		"localhost:1234" -> {
+			let assert Ok(local) = uri.parse(common.kavita_dev_api)
+			common.kavita_dev_api
+		}
+		_ -> uri.to_string(route)
+	}
+}
+
+@external(javascript, "./router.ffi.mjs", "get_current_href")
+pub fn get_route() -> uri.Uri {}

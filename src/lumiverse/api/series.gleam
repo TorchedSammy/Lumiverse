@@ -10,9 +10,9 @@ import gleam/io
 
 import lustre_http
 
-import lumiverse/common
 import lumiverse/models/series
 import lumiverse/layout
+import router
 
 fn minimal_decoder() {
 	dynamic.decode2(
@@ -59,7 +59,7 @@ fn tag_decoder() {
 }
 
 pub fn recently_added(token: String) {
-	let assert Ok(req) = request.to(common.kavita_api_url <> "/api/series/recently-added-v2?pageNumber=1&pageSize=5")
+	let assert Ok(req) = request.to(router.root_url() <> "/api/series/recently-added-v2?pageNumber=1&pageSize=5")
 
 	let req = req
 	|> request.set_method(http.Post)
@@ -72,7 +72,7 @@ pub fn recently_added(token: String) {
 }
 
 pub fn series(series_id: Int, token: String) {
-	let assert Ok(req) = request.to(common.kavita_api_url <> "/api/series/" <> int.to_string(series_id))
+	let assert Ok(req) = request.to(router.root_url() <> "/api/series/" <> int.to_string(series_id))
 
 	let req = req
 	|> request.set_method(http.Get)
@@ -85,7 +85,7 @@ pub fn series(series_id: Int, token: String) {
 }
 
 pub fn metadata(series_id: Int, token: String) {
-	let assert Ok(req) = request.to(common.kavita_api_url <> "/api/series/metadata?seriesId=" <> int.to_string(series_id))
+	let assert Ok(req) = request.to(router.root_url() <> "/api/series/metadata?seriesId=" <> int.to_string(series_id))
 
 	let req = req
 	|> request.set_method(http.Get)

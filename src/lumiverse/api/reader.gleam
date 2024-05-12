@@ -12,9 +12,9 @@ import gleam/io
 
 import lustre_http
 
-import lumiverse/common
 import lumiverse/models/reader
 import lumiverse/layout
+import router
 
 fn progress_decoder() {
 	dynamic.decode5(
@@ -36,7 +36,7 @@ fn continue_decoder() {
 	)
 }
 pub fn get_progress(token: String, chapter_id: Int) {
-	let assert Ok(req) = request.to(common.kavita_api_url <> "/api/reader/get-progress?chapterId=" <> int.to_string(chapter_id))
+	let assert Ok(req) = request.to(router.root_url() <> "/api/reader/get-progress?chapterId=" <> int.to_string(chapter_id))
 
 	let req = req
 	|> request.set_method(http.Get)
@@ -49,7 +49,7 @@ pub fn get_progress(token: String, chapter_id: Int) {
 }
 
 pub fn continue_point(token: String, series_id: Int) {
-	let assert Ok(req) = request.to(common.kavita_api_url <> "/api/reader/continue-point?seriesId=" <> int.to_string(series_id))
+	let assert Ok(req) = request.to(router.root_url() <> "/api/reader/continue-point?seriesId=" <> int.to_string(series_id))
 
 	let req = req
 	|> request.set_method(http.Get)
@@ -62,7 +62,7 @@ pub fn continue_point(token: String, series_id: Int) {
 }
 
 pub fn save_progress(token: String, progress: reader.Progress) {
-	let assert Ok(req) = request.to(common.kavita_api_url <> "/api/reader/progress")
+	let assert Ok(req) = request.to(router.root_url() <> "/api/reader/progress")
 
 	let req_body = json.object([
 		#("volumeId", json.int(progress.volume_id)),
@@ -83,7 +83,7 @@ pub fn save_progress(token: String, progress: reader.Progress) {
 }
 
 pub fn next_chapter(token: String, series_id: Int, volume_id: Int, chapter_id: Int) {
-	let assert Ok(req) = request.to(common.kavita_api_url <> "/api/reader/next-chapter?seriesId=" <> int.to_string(series_id) <> "&volumeId=" <> int.to_string(volume_id) <> "&currentChapterId=" <> int.to_string(chapter_id))
+	let assert Ok(req) = request.to(router.root_url() <> "/api/reader/next-chapter?seriesId=" <> int.to_string(series_id) <> "&volumeId=" <> int.to_string(volume_id) <> "&currentChapterId=" <> int.to_string(chapter_id))
 
 	let req = req
 	|> request.set_method(http.Get)

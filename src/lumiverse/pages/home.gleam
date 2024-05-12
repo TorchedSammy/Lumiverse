@@ -7,13 +7,13 @@ import lustre/attribute.{attribute}
 import lustre/element
 import lustre/element/html
 
-import lumiverse/common
 import lumiverse/layout
 import lumiverse/elements/tag
 import lumiverse/elements/series
 import lumiverse/models/series as series_model
 import lumiverse/models/auth as auth_model
 import lumiverse/model
+import router
 
 pub fn page(model: model.Model) -> element.Element(layout.Msg) {
 	html.div([], case model.user {
@@ -54,7 +54,7 @@ fn carousel_item(model: model.Model, user: auth_model.User, srs: series_model.Mi
 		True -> " active"
 		False -> ""
 	}
-	let cover_url = common.kavita_api_url <> "/api/image/series-cover?seriesId=" <> int.to_string(srs.id) <> "&apiKey=" <> user.api_key
+	let cover_url = router.root_url() <> "/api/image/series-cover?seriesId=" <> int.to_string(srs.id) <> "&apiKey=" <> user.api_key
 	let assert Ok(metadata) = dict.get(model.metadatas, srs.id)
 
 	html.div([attribute.class("carousel-item" <> active_string)], [

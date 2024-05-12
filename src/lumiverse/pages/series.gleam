@@ -9,13 +9,13 @@ import lustre/element
 import lustre/element/html
 import lustre/event
 
-import lumiverse/common
 import lumiverse/model
 import lumiverse/layout
 import lumiverse/models/series
 import lumiverse/elements/tag
 import lumiverse/elements/chapter
 import lumiverse/pages/not_found
+import router
 
 pub fn page(model: model.Model) -> element.Element(layout.Msg) {
 	case model.viewing_series {
@@ -40,7 +40,7 @@ fn real_page(model: model.Model) -> element.Element(layout.Msg) {
 					let assert Ok(srs) = serie
 					let assert Ok(metadata) = dict.get(model.metadatas, srs.id)
 					let assert option.Some(user) = model.user
-					let cover_url = common.kavita_api_url <> "/api/image/series-cover?seriesId=" <> int.to_string(srs.id) <> "&apiKey=" <> user.api_key
+					let cover_url = router.root_url() <> "/api/image/series-cover?seriesId=" <> int.to_string(srs.id) <> "&apiKey=" <> user.api_key
 
 					[#("background-image", "url('" <> cover_url <> "')")]
 				}
@@ -57,7 +57,7 @@ fn real_page(model: model.Model) -> element.Element(layout.Msg) {
 					let assert Ok(srs) = serie
 					let assert Ok(metadata) = dict.get(model.metadatas, srs.id)
 					let assert option.Some(user) = model.user
-					let cover_url = common.kavita_api_url <> "/api/image/series-cover?seriesId=" <> int.to_string(srs.id) <> "&apiKey=" <> user.api_key
+					let cover_url = router.root_url() <> "/api/image/series-cover?seriesId=" <> int.to_string(srs.id) <> "&apiKey=" <> user.api_key
 
 					html.img([
 						attribute.attribute("loading", "lazy"),
@@ -78,7 +78,7 @@ fn real_page(model: model.Model) -> element.Element(layout.Msg) {
 					let assert Ok(srs) = serie
 					let assert Ok(metadata) = dict.get(model.metadatas, srs.id)
 					let assert option.Some(user) = model.user
-					let cover_url = common.kavita_api_url <> "/api/image/series-cover?seriesId=" <> int.to_string(srs.id) <> "&apiKey=" <> user.api_key
+					let cover_url = router.root_url() <> "/api/image/series-cover?seriesId=" <> int.to_string(srs.id) <> "&apiKey=" <> user.api_key
 
 					[
 						html.h1([attribute.class("title")], [element.text(srs.name)]),

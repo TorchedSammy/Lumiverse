@@ -4,8 +4,6 @@ import gleam/json
 
 import lustre_http as http
 
-import lumiverse/common
-
 pub type Msg {
 	LoginSubmitted
 	UsernameUpdated(value: String)

@@ -10,13 +10,13 @@ import lustre/element
 import lustre/element/html
 import lustre/event
 
-import lumiverse/common
 import lumiverse/model
 import lumiverse/layout
 import lumiverse/models/series
 import lumiverse/elements/tag
 import lumiverse/elements/chapter
 import lumiverse/pages/not_found
+import router
 
 pub fn page(model: model.Model) -> element.Element(layout.Msg) {
 	case model.reader_progress {
@@ -25,7 +25,7 @@ pub fn page(model: model.Model) -> element.Element(layout.Msg) {
 		])
 		option.Some(progress) -> {
 			let assert option.Some(user) = model.user
-			let page_image = common.kavita_api_url <> "/api/reader/image?chapterId=" <> int.to_string(progress.chapter_id) <> "&page=" <> int.to_string(progress.page_number) <> "&apiKey=" <> user.api_key
+			let page_image = router.root_url() <> "/api/reader/image?chapterId=" <> int.to_string(progress.chapter_id) <> "&page=" <> int.to_string(progress.page_number) <> "&apiKey=" <> user.api_key
 
 			html.div([attribute.class("d-flex flex-column"), attribute.id("reader-page"), attribute.style([
 				#("position", "relative")
