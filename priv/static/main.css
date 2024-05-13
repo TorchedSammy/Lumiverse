@@ -67,7 +67,7 @@ html:not([data-scroll='0']) .navbar-transition {
 
 .logo {
 	width: auto;
-	height: 2.25em;
+	height: 3.25em;
 }
 
 h1, h2, h3, h4, h5, h6, span {
@@ -250,6 +250,11 @@ h1 {
 	gap: 0.5rem;
 }
 
+.auth-head h1, .auth-head img {
+	display: inline-block;
+	vertical-align: middle;
+}
+
 .auth-content {
 	padding: 20px 40px 20px;
 }
@@ -412,7 +417,7 @@ input {
 	position: unset;
 }
 
-.carousel-content {
+.carousel-item {
 	height: 20rem;
 }
 
@@ -423,6 +428,7 @@ input {
 #reader-img {
 	width: 100%;
 	max-width: fit-content;
+	background-color: var(--background-secondary);
 }
 
 /* Helper Classes */

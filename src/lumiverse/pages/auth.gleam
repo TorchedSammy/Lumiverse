@@ -69,12 +69,12 @@ pub fn logout() -> element.Element(layout.Msg) {
 fn container(contents: List(element.Element(layout.Msg))) -> element.Element(layout.Msg) {
 	html.main([attribute.class("container-fluid d-flex auth fullscreen align-items-center justify-content-center")], [
 		html.div([attribute.class("splash")], [
-			html.div([attribute.class("auth-head d-flex mb-5 justify-content-center align-items-baseline")], [
+			html.div([attribute.class("d-flex auth-head mb-5 justify-content-center")], [
 				html.img([
 					attribute.class("logo"),
 					attribute.src(config.logo())
 				]),
-				html.h1([], [element.text(config.name())])
+				html.h1([attribute.class("mb-0")], [element.text(config.name())])
 			]),
 			html.article([], contents)
 		])

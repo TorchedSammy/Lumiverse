@@ -1,5 +1,5 @@
 pub fn logo() -> String {
-	"https://gleam.run/images/lucy/lucy.svg"
+	"/priv/static/logo.svg"
 }
 
 pub fn name() -> String {
