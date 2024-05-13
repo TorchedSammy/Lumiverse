@@ -87,7 +87,7 @@ fn real_page(model: model.Model) -> element.Element(layout.Msg) {
 							#("flex-grow", "1"),
 							#("display", "block")
 						])], []),
-						html.span([attribute.class("authors")], [
+						html.p([attribute.class("authors mb-1")], [
 							element.text(string.join(["Yamada Kanehito", "Abe Tsukasa"], ", "))
 						])
 					]
@@ -104,13 +104,15 @@ fn real_page(model: model.Model) -> element.Element(layout.Msg) {
 					])
 				]
 			}),
-			html.div([attribute.class("buttons")], [
-				html.button([event.on_click(layout.Read), attribute.attribute("type", "button"), attribute.class("btn btn-lg" <> placeholder_class <> case model.viewing_series {
-					option.Some(_) -> " btn-primary"
-					option.None -> "disabled"
-				})], [
-					html.span([attribute.class("icon-book")], []),
-					element.text("Start Reading")
+			html.div([attribute.class("buttons row px-1")], [
+				html.div([attribute.class("col-auto")], [
+					html.button([event.on_click(layout.Read), attribute.attribute("type", "button"), attribute.class("btn btn-lg" <> placeholder_class <> case model.viewing_series {
+						option.Some(_) -> " btn-primary"
+						option.None -> "disabled"
+					})], [
+						html.span([attribute.class("icon-book")], []),
+						element.text("Start Reading")
+					])
 				])
 			]),
 			case model.viewing_series {
@@ -118,7 +120,7 @@ fn real_page(model: model.Model) -> element.Element(layout.Msg) {
 					let assert Ok(srs) = serie
 					let assert Ok(metadata) = dict.get(model.metadatas, srs.id)
 
-					html.div([attribute.class("d-flex tagandpub")], list.append(
+					html.div([attribute.class("d-flex tagandpub px-1")], list.append(
 						{
 							let tags = list.append(list.map(metadata.tags, fn(t) {t.title}), list.map(metadata.genres, fn(t) {t.title}))
 							case list.length(tags) {

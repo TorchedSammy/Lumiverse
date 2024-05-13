@@ -79,6 +79,10 @@ p {
 	font-family: 'Poppins', sans-serif;
 }
 
+h1 {
+	font-size: calc(1.2rem + 2vw);
+}
+
 .flex {
 	display: flex;
 	flex-wrap: wrap;
@@ -124,6 +128,10 @@ p {
 	position: fixed;
 }
 
+.banner-shade {
+	background: linear-gradient(to bottom,rgb(var(--background-primary-rgb), .6),rgb(var(--background-primary-rgb)))
+}
+
 .series-bg-image {
 	top: 0;
 	left: 0;
@@ -139,15 +147,28 @@ p {
 
 .series-page .info {
 	display: grid;
-	gap: 1rem;
-	grid-template-areas:
-	"left cover names right"
-	"left cover buttons right"
-	"left cover tagandpub right"
-	"left cover stats right"
-	"left cover summary right"
-	"left content content right";
-	grid-template-columns: 1fr 200px minmax(0, calc(1240px - 3.5rem)) 1fr;
+    gap: .75rem 1rem;
+    grid-template-areas: "cover names"
+    "buttons buttons"
+    "tagandpub tagandpub"
+    "summary summary"
+    "content content";
+    grid-template-columns: 100px auto;
+}
+
+@media (min-width: 40rem) {
+	.series-page .info {
+		display: grid;
+		gap: 1rem;
+		grid-template-areas:
+		"left cover names right"
+		"left cover buttons right"
+		"left cover tagandpub right"
+		"left cover stats right"
+		"left cover summary right"
+		"left content content right";
+		grid-template-columns: 1fr 200px minmax(0, calc(1240px - 3.5rem)) 1fr;
+	}
 }
 
 .series-page .cover {
@@ -156,11 +177,26 @@ p {
 	grid-area: cover;
 }
 
+.series-page .authors {
+	font-size: calc(12px + .5vmin);
+}
+
+@media (max-width: 40rem) {
+	.series-page .authors {
+		font-size: calc(10px + .4vmin);
+	}
+}
+
+@media (min-width: 40rem) {
+	.series-page .names {
+		height: 9.5rem
+	}
+}
+
 .series-page .names {
 	grid-area: names;
 	flex-direction: column;
 	justify-content: flex-end;
-	height: 9.5em;
 }
 
 .series-page .names .title {
@@ -175,6 +211,7 @@ p {
 	grid-area: tagandpub;
 	gap: 0.7vmax;
 	align-items: center;
+	flex-wrap: wrap;
 }
 
 .publication {
@@ -246,7 +283,7 @@ p {
 	width: 100%;
 }
 
-.splash .group h1, h2 {
+.splash .group h1 {
 	font-family: 'League Spartan', sans-serif;
 	font-weight: 600;
 	text-align: center;
@@ -375,15 +412,28 @@ input {
 	position: unset;
 }
 
-.featured-carousel .item-detail {
-	display: flex;
-	gap: 0.6rem;
-}
-
-.featured-carousel .item-detail img, .carousel-item {
+.carousel-item {
 	height: 20rem;
 }
 
 .featued-carousel .item-text {
 	display: grid;
+}
+
+#reader-img {
+	width: 100%;
+	max-width: fit-content;
+}
+
+/* Helper Classes */
+.relative {
+	position: relative !important;
+}
+
+.h-full {
+	height: 100%;
+}
+
+.fixed {
+	position: fixed !important;
 }

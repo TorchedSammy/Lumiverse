@@ -76,7 +76,9 @@ pub fn page(model: model.Model) -> element.Element(layout.Msg) {
 						#("width", "50vw"),
 					])], []),
 				]),
-				html.img([attribute.class("align-self-center"), attribute.id("reader-img"), attribute.src(page_image)])
+				html.div([attribute.class("h-full d-flex justify-content-center")], [
+					html.img([attribute.class("img-fluid"), attribute.id("reader-img"), attribute.src(page_image)])
+				])
 			])
 		}
 	}

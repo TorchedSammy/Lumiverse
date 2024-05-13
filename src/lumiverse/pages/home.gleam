@@ -67,9 +67,11 @@ fn carousel_item(model: model.Model, user: auth_model.User, srs: series_model.Mi
 				#("background", "linear-gradient(to bottom,rgb(var(--background-primary-rgb), .6),rgb(var(--background-primary-rgb)))"),
 				#("height", "28.8rem"),
 			])], []),
-			html.div([attribute.class("item-detail")], [
-				html.img([attribute.src(cover_url)]),
-				html.div([attribute.class("item-text")], [
+			html.div([attribute.class("item-detail row")], [
+				html.div([attribute.class("col-4")], [
+					html.img([attribute.src(cover_url), attribute.class("rounded img-fluid")]),
+				]),
+				html.div([attribute.class("item-text col")], [
 					html.h2([], [element.text(srs.name)]),
 					tag.list(list.append(list.map(metadata.tags, fn(t) {t.title}), list.map(metadata.genres, fn(t) {t.title}))),
 					html.p([], [element.text(metadata.summary)]),
