@@ -287,7 +287,14 @@ fn update(model: model.Model, msg: layout.Msg) -> #(model.Model, Effect(layout.M
 			let assert option.Some(prog) = model.reader_progress
 			#(model.Model(
 				..model,
-				chapter_info: option.Some(inf)
+				chapter_info: option.Some(inf),
+				reader_progress: option.Some(reader_model.Progress(
+					..prog,
+					volume_id: inf.volume_id,
+					chapter_id: prog.chapter_id,
+					library_id: inf.library_id,
+					series_id: inf.series_id
+				))
 			), effect.batch([
 				reader.next_chapter(user.token, inf.series_id, inf.volume_id, prog.chapter_id),
 				reader.continue_point(user.token, inf.series_id),
