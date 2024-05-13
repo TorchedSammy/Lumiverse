@@ -42,3 +42,7 @@ pub fn encode_login_json(user: auth.User) -> String {
 	])
 	|> json.to_string
 }
+
+pub fn health() {
+	http.get(router.direct("/api/health"), http.expect_anything(layout.HealthCheck))
+}

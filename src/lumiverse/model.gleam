@@ -11,6 +11,7 @@ import lumiverse/models/series
 pub type Model {
 	Model(
 		route: router.Route,
+		health_failed: option.Option(Bool),
 		user: option.Option(auth.User),
 		auth: AuthModel,
 		home: HomeModel,

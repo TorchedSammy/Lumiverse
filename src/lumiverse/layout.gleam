@@ -17,6 +17,7 @@ import lumiverse/models/series
 // TODO TODO: handle specific messages where they are declared
 pub type Msg {
 	Router(router.Msg)
+	HealthCheck(Result(Nil, http.HttpError))
 	// Auth
 	AuthPage(auth.Msg)
 	LoginGot(Result(auth.User, http.HttpError))

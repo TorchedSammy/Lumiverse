@@ -34,6 +34,7 @@ import lumiverse/pages/home
 import lumiverse/pages/series as series_page
 import lumiverse/pages/auth
 import lumiverse/pages/not_found
+import lumiverse/pages/api_down
 
 pub fn main() {
 	let app = lustre.application(init, update, view)
@@ -60,6 +61,7 @@ fn init(_) {
 
 	let model = model.Model(
 		route: route,
+		health_failed: option.None,
 		user: user,
 		auth: model.AuthModel(
 			auth_message: "",
@@ -78,9 +80,8 @@ fn init(_) {
 		chapter_info: option.None
 	)
 
-	#(model, effect.batch([modem.init(on_url_change), route_effect(model, route)]))
+	#(model, effect.batch([modem.init(on_url_change), api.health()]))
 }
-
 
 fn on_url_change(uri: uri.Uri) -> layout.Msg {
 	router_handler.uri_to_route(uri) |> router.ChangeRoute |> layout.Router
@@ -139,6 +140,8 @@ fn update(model: model.Model, msg: layout.Msg) -> #(model.Model, Effect(layout.M
 		layout.Router(router.ChangeRoute(route)) -> {
 			#(model.Model(..model, route: route, viewing_series: option.None), route_effect(model, route))
 		}
+		layout.HealthCheck(Ok(Nil)) -> #(model.Model(..model, health_failed: option.Some(False)), route_effect(model, router_handler.uri_to_route(router_handler.get_route())))
+		layout.HealthCheck(Error(_)) -> #(model.Model(..model, health_failed: option.Some(True)), effect.none())
 		layout.HomeRecentlyAddedUpdate(Ok(series)) -> {
 			case model.user {
 				option.Some(user) -> {
@@ -306,22 +309,28 @@ fn update(model: model.Model, msg: layout.Msg) -> #(model.Model, Effect(layout.M
 }
 
 fn view(model: model.Model) -> Element(layout.Msg) {
-	let page = case model.route {
-		router.Home -> home.page(model)
-		router.Login -> auth.login(model)
-		router.Logout -> auth.logout()
-		router.Series(id) -> series_page.page(model)
-		router.Reader(id) -> reader_page.page(model)
-		router.NotFound -> not_found.page()
-	}
+	case model.health_failed {
+		option.None -> html.div([], [])
+		option.Some(True) -> api_down.page()
+		option.Some(False) -> {
+			let page = case model.route {
+				router.Home -> home.page(model)
+				router.Login -> auth.login(model)
+				router.Logout -> auth.logout()
+				router.Series(id) -> series_page.page(model)
+				router.Reader(id) -> reader_page.page(model)
+				router.NotFound -> not_found.page()
+			}
 
-	case model.route {
-		router.Login -> page
-		router.Logout -> page
-		router.NotFound -> page
-		_ -> html.div([], [
-			layout.nav(model),
-			page,
-		])
+			let supposed_to_serve = case model.route {
+				router.Login -> page
+				router.Logout -> page
+				router.NotFound -> page
+				_ -> html.div([], [
+					layout.nav(model),
+					page,
+				])
+			}
+		}
 	}
 }
