@@ -58,7 +58,7 @@ fn carousel_item(model: model.Model, user: auth_model.User, srs: series_model.Mi
 	let assert Ok(metadata) = dict.get(model.metadatas, srs.id)
 
 	html.div([attribute.class("carousel-item" <> active_string)], [
-		html.a([attribute.class("text-reset"), attribute.href("/series/" <> int.to_string(srs.id))], [
+		html.a([attribute.class("text-reset carousel-content"), attribute.href("/series/" <> int.to_string(srs.id))], [
 			html.div([attribute.class("series-bg-image bg-image-backdrop"), attribute.style([
 				#("background-image", "url(" <> cover_url <> ")"),
 				#("height", "28.8rem"),
@@ -69,7 +69,9 @@ fn carousel_item(model: model.Model, user: auth_model.User, srs: series_model.Mi
 			])], []),
 			html.div([attribute.class("item-detail row")], [
 				html.div([attribute.class("col-4")], [
-					html.img([attribute.src(cover_url), attribute.class("rounded img-fluid")]),
+					html.img([attribute.src(cover_url), attribute.class("rounded"), attribute.style([
+						#("max-height", "20rem")
+					])]),
 				]),
 				html.div([attribute.class("item-text col")], [
 					html.h2([], [element.text(srs.name)]),
