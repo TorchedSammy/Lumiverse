@@ -147,13 +147,13 @@ h1 {
 
 .series-page .info {
 	display: grid;
-    gap: .75rem 1rem;
-    grid-template-areas: "cover names"
-    "buttons buttons"
-    "tagandpub tagandpub"
-    "summary summary"
-    "content content";
-    grid-template-columns: 100px auto;
+	gap: .75rem 1rem;
+	grid-template-areas: "cover names"
+	"buttons buttons"
+	"tagandpub tagandpub"
+	"summary summary"
+	"content content";
+	grid-template-columns: 100px auto;
 }
 
 @media (min-width: 40rem) {
@@ -362,46 +362,46 @@ input {
 }
 
 .dropdown-menu hr {
-    opacity: 1;
-    margin: 0.5rem;
+	opacity: 1;
+	margin: 0.5rem;
 }
 
 .drop-item {
-    display: flex;
-    gap: 5px;
-    align-items: center;
-    flex-wrap: nowrap;
-    //padding: 0.3em 1em;
-    font-weight: bold;
-    border-radius: 0.2em;
-    transition: background-color 0.1s ease-in-out;
+	display: flex;
+	gap: 5px;
+	align-items: center;
+	flex-wrap: nowrap;
+	//padding: 0.3em 1em;
+	font-weight: bold;
+	border-radius: 0.2em;
+	transition: background-color 0.1s ease-in-out;
 }
 
 .drop-item:hover {
-    background-color: var(--primary);
-    color: var(--fg);
+	background-color: var(--primary);
+	color: var(--fg);
 }
 
 .drop-item-text, .drop-item-icon {
-    color: var(--fg);
+	color: var(--fg);
 }
 
 .drop-item-text {
-    text-decoration: none;
+	text-decoration: none;
 }
 
 .featured-carousel-controls {
 	    display: flex;
-    /* justify-content: flex-end; */
-    /* align-items: flex-end; */
-    /* flex-direction: row; */
-    /* flex-wrap: nowrap; */
-    /* width: 20rem; */
-    position: absolute;
-    align-content: flex-end;
-    bottom: 0;
-    right: 0;
-    gap: 3rem;
+	/* justify-content: flex-end; */
+	/* align-items: flex-end; */
+	/* flex-direction: row; */
+	/* flex-wrap: nowrap; */
+	/* width: 20rem; */
+	position: absolute;
+	align-content: flex-end;
+	bottom: 0;
+	right: 0;
+	gap: 3rem;
 }
 
 .featured-carousel-controls {
@@ -428,7 +428,10 @@ input {
 #reader-img {
 	width: 100%;
 	max-width: fit-content;
-	background-color: var(--background-secondary);
+	max-height: 100vh;
+	margin: auto;
+	object-fit: contain;
+	background-color: #000000;
 }
 
 /* Helper Classes */
