@@ -15,6 +15,8 @@ import lustre/element.{type Element}
 import lustre/element/html
 import lustre_http as http
 import modem
+import plinth/browser/document
+import plinth/browser/element as plinth_element
 
 import localstorage
 import router as router_handler
@@ -55,8 +57,6 @@ fn init(_) {
 		}
 		Error(_) -> option.None
 	}
-	io.debug(router_handler.get_route())
-
 	let route = router_handler.uri_to_route(router_handler.get_route())
 
 	let model = model.Model(
@@ -238,7 +238,10 @@ fn update(model: model.Model, msg: layout.Msg) -> #(model.Model, Effect(layout.M
 				num -> {
 					let assert option.Some(user) = model.user
 					let advanced_progress = reader_model.Progress(..current_progress, page_number: num)
-					reader_util.scroll()
+					case document.query_selector("#reader-img") {
+						Ok(reader_elem) -> plinth_element.scroll_into_view(reader_elem)
+						Error(_) -> Nil
+					}
 					#(model.Model(..model, reader_progress: option.Some(advanced_progress)), reader.save_progress(user.token, advanced_progress))
 				}
 			}

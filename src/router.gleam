@@ -2,6 +2,7 @@ import gleam/io
 import gleam/int
 import gleam/option
 import gleam/uri
+import plinth/browser/window
 
 import lumiverse/common
 import lumiverse/models/router
@@ -43,5 +44,7 @@ pub fn direct(rel: String) -> String {
 	uri.to_string(direction)
 }
 
-@external(javascript, "./router.ffi.mjs", "get_current_href")
-pub fn get_route() -> uri.Uri {}
+pub fn get_route() -> uri.Uri {
+	let assert Ok(route) = uri.parse(window.location())
+	route
+}
