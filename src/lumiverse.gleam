@@ -20,7 +20,6 @@ import plinth/browser/element as plinth_element
 
 import localstorage
 import router as router_handler
-import reader_util
 
 import lumiverse/api/api
 import lumiverse/api/reader
@@ -135,6 +134,13 @@ fn series_and_metadata(token: String, id: Int) -> Effect(layout.Msg) {
 	effect.batch([series_req.series(id, token), series_req.metadata(id, token)])
 }
 
+fn scroll_reader() {
+	case document.query_selector("#reader-img") {
+		Ok(reader_elem) -> plinth_element.scroll_into_view(reader_elem)
+		Error(_) -> Nil
+	}
+}
+
 fn update(model: model.Model, msg: layout.Msg) -> #(model.Model, Effect(layout.Msg)) {
 	case msg {
 		layout.Router(router.ChangeRoute(route)) -> {
@@ -238,10 +244,7 @@ fn update(model: model.Model, msg: layout.Msg) -> #(model.Model, Effect(layout.M
 				num -> {
 					let assert option.Some(user) = model.user
 					let advanced_progress = reader_model.Progress(..current_progress, page_number: num)
-					case document.query_selector("#reader-img") {
-						Ok(reader_elem) -> plinth_element.scroll_into_view(reader_elem)
-						Error(_) -> Nil
-					}
+					scroll_reader()
 					#(model.Model(..model, reader_progress: option.Some(advanced_progress)), reader.save_progress(user.token, advanced_progress))
 				}
 			}
@@ -261,12 +264,15 @@ fn update(model: model.Model, msg: layout.Msg) -> #(model.Model, Effect(layout.M
 					#(model.Model(..model, reader_progress: option.None), modem.load(next_uri))
 				}
 				_ -> {
-					reader_util.scroll()
+					scroll_reader()
 					#(model.Model(..model, reader_progress: option.Some(advanced_progress)), reader.save_progress(user.token, advanced_progress))
 				}
 			}
 		}
-		layout.NextChapterRetrieved(Ok(next)) -> #(model.Model(..model, next_chapter: option.Some(next)), effect.none())
+		layout.NextChapterRetrieved(Ok(next)) -> #(model.Model(..model, next_chapter: case next {
+			-1 -> option.None
+			_ -> option.Some(next)
+		}), effect.none())
 		layout.NextChapterRetrieved(Error(_)) -> todo as "handle next chapter fail"
 		layout.ProgressUpdated(Ok(Nil)) -> #(model, effect.none())
 		layout.ProgressUpdated(Error(_)) -> todo as "handle if progress update failed"
