@@ -255,8 +255,8 @@ fn update(model: model.Model, msg: layout.Msg) -> #(model.Model, Effect(layout.M
 			let assert option.Some(current_progress) = model.reader_progress
 			let advanced_progress = reader_model.Progress(..current_progress, page_number: current_progress.page_number + 1)
 			let assert option.Some(cont_point) = model.continue_point
-			case int.compare(advanced_progress.page_number + 1, cont_point.pages) {
-				order.Gt -> {
+			case int.compare(advanced_progress.page_number, cont_point.pages) {
+				order.Eq -> {
 					let assert Ok(next_uri) = case model.next_chapter {
 						option.None -> uri.parse("/series/" <> int.to_string(current_progress.series_id))
 						option.Some(next_chapter) -> uri.parse("/chapter/" <> int.to_string(next_chapter))
