@@ -23,8 +23,6 @@ pub fn uri_to_route(uri: uri.Uri) -> router.Route {
 
 pub fn root_uri() -> uri.Uri {
 	let route = get_route()
-	io.debug(route.host)
-	io.debug(route.port)
 	case route.host, route.port {
 		option.Some("localhost"), option.Some(1234) -> {
 			let assert Ok(local) = uri.parse(common.kavita_dev_api)

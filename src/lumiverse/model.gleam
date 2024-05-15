@@ -20,6 +20,7 @@ pub type Model {
 		viewing_series: option.Option(Result(series.MinimalInfo, http.HttpError)),
 		reader_progress: option.Option(reader.Progress),
 		continue_point: option.Option(reader.ContinuePoint),
+		prev_chapter: option.Option(Int),
 		next_chapter: option.Option(Int),
 		chapter_info: option.Option(reader.ChapterInfo)
 	)

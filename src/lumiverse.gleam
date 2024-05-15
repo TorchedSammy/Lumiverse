@@ -75,6 +75,7 @@ fn init(_) {
 		viewing_series: option.None,
 		reader_progress: option.None,
 		continue_point: option.None,
+		prev_chapter: option.None,
 		next_chapter: option.None,
 		chapter_info: option.None
 	)
@@ -239,8 +240,18 @@ fn update(model: model.Model, msg: layout.Msg) -> #(model.Model, Effect(layout.M
 		layout.ReaderPrevious -> {
 			io.println("WAIT GO BACK")
 			let assert option.Some(current_progress) = model.reader_progress
+			io.debug(current_progress.page_number - 1)
+			io.debug(model.prev_chapter)
 			case current_progress.page_number - 1 {
-				-1 -> #(model, effect.none())
+				-1 -> {
+					case model.prev_chapter {
+						option.None -> #(model, effect.none())
+						option.Some(prev_chapter) -> {
+							let assert Ok(prev_uri) = uri.parse("/chapter/" <> int.to_string(prev_chapter))
+							#(model, modem.load(prev_uri))
+						}
+					}
+				}
 				num -> {
 					let assert option.Some(user) = model.user
 					let advanced_progress = reader_model.Progress(..current_progress, page_number: num)
@@ -269,6 +280,11 @@ fn update(model: model.Model, msg: layout.Msg) -> #(model.Model, Effect(layout.M
 				}
 			}
 		}
+		layout.PreviousChapterRetrieved(Ok(prev)) -> #(model.Model(..model, prev_chapter: case prev {
+			-1 -> option.None
+			_ -> option.Some(prev)
+		}), effect.none())
+		layout.PreviousChapterRetrieved(Error(_)) -> todo as "handle prev chapter fail"
 		layout.NextChapterRetrieved(Ok(next)) -> #(model.Model(..model, next_chapter: case next {
 			-1 -> option.None
 			_ -> option.Some(next)
@@ -308,6 +324,7 @@ fn update(model: model.Model, msg: layout.Msg) -> #(model.Model, Effect(layout.M
 					series_id: inf.series_id
 				))
 			), effect.batch([
+				reader.prev_chapter(user.token, inf.series_id, inf.volume_id, prog.chapter_id),
 				reader.next_chapter(user.token, inf.series_id, inf.volume_id, prog.chapter_id),
 				reader.continue_point(user.token, inf.series_id),
 				series_and_metadata(user.token, inf.series_id)]
