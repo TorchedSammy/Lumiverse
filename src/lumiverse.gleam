@@ -36,6 +36,7 @@ import lumiverse/pages/series as series_page
 import lumiverse/pages/auth
 import lumiverse/pages/not_found
 import lumiverse/pages/api_down
+import lumiverse/pages/splash
 
 pub fn main() {
 	let app = lustre.application(init, update, view)
@@ -336,7 +337,7 @@ fn update(model: model.Model, msg: layout.Msg) -> #(model.Model, Effect(layout.M
 
 fn view(model: model.Model) -> Element(layout.Msg) {
 	case model.health_failed {
-		option.None -> html.div([], [])
+		option.None -> splash.page()
 		option.Some(True) -> api_down.page()
 		option.Some(False) -> {
 			let page = case model.route {
