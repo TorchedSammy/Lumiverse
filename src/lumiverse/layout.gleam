@@ -11,6 +11,7 @@ import lumiverse/models/auth
 import lumiverse/models/reader
 import lumiverse/models/router
 import lumiverse/models/series
+import lumiverse/components/button.{button}
 
 // TODO: put messages related to a specific page in separate source
 // there is no reason for LoginGot to not be outside auth.Msg
@@ -39,34 +40,7 @@ pub type Msg {
 	NextChapterRetrieved(Result(Int, http.HttpError))
 }
 
-pub fn head() -> element.Element(a) {
-	html.head([], [
-		html.meta([
-			attribute.attribute("charset", "UTF-8")
-		]),
-		html.meta([
-			attribute.name("viewport"),
-			attribute.attribute("content", "width=device-width, initial-scale=1.0")
-		]),
-		html.link([
-			attribute.rel("stylesheet"),
-			attribute.href("/static/font-awesome/style.css")
-		]),
-		html.link([
-			attribute.rel("stylesheet"),
-			attribute.href("https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css")
-		]),
-		html.link([
-			attribute.rel("stylesheet"),
-			attribute.href("/static/main.css")
-		]),
-		html.script([
-			attribute.src("/static/main.js")
-		], "")
-	])
-}
-
-pub fn nav(model: model.Model) -> element.Element(a) {
+pub fn nav_(model: model.Model) -> element.Element(a) {
 	html.nav([attribute.class("navbar navbar-expand-lg border-bottom" <> case model.route {
 		router.Reader(_) -> ""
 		_ -> " fixed-top mb-3 navbar-transition"
@@ -74,7 +48,7 @@ pub fn nav(model: model.Model) -> element.Element(a) {
 		html.div([attribute.class("container-fluid")], [
 			html.a([attribute.class("navbar-brand"), attribute.href("/")], [
 				html.img([
-					//attribute.src(config.logo()),
+					attribute.src(config.logo()),
 					attribute.class("logo")
 				]),
 				html.span([attribute.class("navbar-brand-text")], [element.text("Lumiverse")]),
@@ -113,6 +87,32 @@ pub fn nav(model: model.Model) -> element.Element(a) {
 					])
 				}
 			])
+		])
+	])
+}
+
+pub fn nav(model: model.Model) {
+	html.nav([], [
+		html.div([attribute.class("max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4")], [
+			html.a([attribute.href("/"), attribute.class("flex items-center space-x-3")], [
+				html.img([
+					attribute.src(config.logo()),
+					attribute.class("h-12")
+				]),
+				html.span([
+					attribute.class("self-center text-2xl font-bold dark:text-white")
+				], [
+					element.text("Lumiverse")
+				])
+			]),
+			case model.user {
+				option.Some(user) -> html.div([], [
+					button([button.md(), attribute.class("text-white")], [element.text(user.username)])
+				])
+				option.None -> html.a([attribute.href("/login")], [
+					button([button.solid(button.Neutral), button.md()], [element.text("Login")])
+				])
+			}
 		])
 	])
 }
