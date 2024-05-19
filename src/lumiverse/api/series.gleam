@@ -12,6 +12,8 @@ import lustre_http
 
 import lumiverse/models/series
 import lumiverse/models/stream
+import lumiverse/models/filter
+import lumiverse/model
 import lumiverse/layout
 import router
 
@@ -98,6 +100,21 @@ pub fn on_deck(token: String, order: Int, title: String) {
 	lustre_http.send(req, lustre_http.expect_json(stream.dashboard_series_list_decoder(order, title), layout.DashboardItemRetrieved))
 }
 
+pub fn decode_smart_filter(token: String, order: Int, smart_filter_encoded: String, for_dashboard: Bool) {
+	let assert Ok(req) = request.to(router.direct("/api/filter/decode"))
+
+	let req = req
+	|> request.set_method(http.Post)
+	|> request.set_body(json.object([
+		#("encodedFilter", json.string(smart_filter_encoded))
+	]) |> json.to_string)
+	|> request.set_header("Authorization", "Bearer " <> token)
+	|> request.set_header("Accept", "application/json")
+	|> request.set_header("Content-Type", "application/json")
+
+	lustre_http.send(req, lustre_http.expect_json(filter.smart_filter_decoder(for_dashboard, order), layout.SmartFilterDecode))
+}
+
 pub fn series(series_id: Int, token: String) {
 	let assert Ok(req) = request.to(router.direct("/api/series/" <> int.to_string(series_id)))
 
@@ -122,4 +139,27 @@ pub fn metadata(series_id: Int, token: String) {
 	|> request.set_header("Content-Type", "application/json")
 
 	lustre_http.send(req, lustre_http.expect_json(metadata_decoder(), layout.SeriesMetadataRetrieved))
+}
+
+pub fn all(token: String, smart_filter: filter.SmartFilter) {
+	let assert Ok(req) = request.to(router.direct("/api/series/all-v2?pageSize=10"))
+
+	let req = req
+	|> request.set_method(http.Post)
+	|> request.set_body(filter.encode_smart_filter(smart_filter) |> json.to_string)
+	|> request.set_header("Authorization", "Bearer " <> token)
+	|> request.set_header("Accept", "application/json")
+	|> request.set_header("Content-Type", "application/json")
+
+	lustre_http.send(req, lustre_http.expect_json(fn(val) {
+		let decoder = dynamic.list(minimal_decoder())
+		case decoder(val) {
+			Ok(serieses) -> Ok(#(smart_filter.for_dashboard, model.SeriesList(
+				idx: smart_filter.order,
+				title: smart_filter.name,
+				items: serieses,
+			)))
+			Error(e) -> Error(e)
+		}
+	}, layout.AllSeriesRetrieved))
 }

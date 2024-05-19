@@ -161,6 +161,10 @@ fn update(model: model.Model, msg: layout.Msg) -> #(model.Model, Effect(layout.M
 					stream.OnDeck -> series_req.on_deck(user.token, dash_item.order, "Continue Reading")
 					stream.RecentlyUpdated -> series_req.recently_updated(user.token, dash_item.order, "Latest Updates")
 					stream.NewlyAdded -> series_req.recently_added(user.token, dash_item.order, "Newly Added Series")
+					stream.SmartFilter -> {
+						let assert option.Some(smart_filter) = dash_item.smart_filter_encoded
+						series_req.decode_smart_filter(user.token, dash_item.order, smart_filter, True)
+					}
 					_ -> effect.none()
 				}
 			})
@@ -171,7 +175,7 @@ fn update(model: model.Model, msg: layout.Msg) -> #(model.Model, Effect(layout.M
 					..model.home,
 					dashboard_count: list.length(list.filter(dashboard, fn(itm) {
 						bool.and(itm.visible, case itm.stream_type {
-							stream.SmartFilter | stream.MoreInGenre -> False
+							stream.MoreInGenre -> False
 							_ -> True
 						})
 					}))
@@ -211,6 +215,30 @@ fn update(model: model.Model, msg: layout.Msg) -> #(model.Model, Effect(layout.M
 			io.debug(e)
 			#(model, effect.none())
 		}
+		layout.SmartFilterDecode(Ok(smart_filter)) -> {
+			let assert option.Some(user) = model.user
+			#(model, series_req.all(user.token, smart_filter))
+		}
+		layout.SmartFilterDecode(Error(e)) -> {
+			io.debug(e)
+			todo as "smart filter failed :("
+		}
+		layout.AllSeriesRetrieved(Ok(all_serie)) -> {
+			// if its a dashboard item
+			case all_serie.0 {
+				True -> #(model.Model(
+					..model,
+					home: model.HomeModel(
+						..model.home,
+						series_lists: list.unique(list.sort([all_serie.1, ..model.home.series_lists], fn(list_a, list_b) {
+							int.compare(list_a.idx, list_b.idx)
+						}))
+					)
+				), effect.none())
+				False -> #(model, effect.none())
+			}
+		}
+		layout.AllSeriesRetrieved(Error(_)) -> todo as "handle all series fail"
 		layout.SeriesRetrieved(maybe_serie) -> {
 			let series_store = case maybe_serie {
 				Ok(serie) -> model.series |> dict.insert(serie.id, serie)

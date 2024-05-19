@@ -51,7 +51,7 @@ pub fn health() {
 }
 
 fn dashboard_decoder() {
-	dynamic.list(dynamic.decode6(
+	dynamic.list(dynamic.decode7(
 		stream.DashboardItem,
 		dynamic.field("id", dynamic.int),
 		dynamic.field("name", dynamic.string),
@@ -59,6 +59,7 @@ fn dashboard_decoder() {
 		dynamic.field("order", dynamic.int),
 		dynamic.field("streamType", stream.dynamic_streamtype),
 		dynamic.field("visible", dynamic.bool),
+		dynamic.optional_field("smartFilterEncoded", dynamic.string),
 	))
 }
 

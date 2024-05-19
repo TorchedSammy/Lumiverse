@@ -12,6 +12,7 @@ import lumiverse/models/reader
 import lumiverse/models/router
 import lumiverse/models/series
 import lumiverse/models/stream
+import lumiverse/models/filter
 import lumiverse/components/button.{button}
 
 // TODO: put messages related to a specific page in separate source
@@ -20,6 +21,10 @@ import lumiverse/components/button.{button}
 pub type Msg {
 	Router(router.Msg)
 	HealthCheck(Result(Nil, http.HttpError))
+	SmartFilterDecode(Result(filter.SmartFilter, http.HttpError))
+	//                           \/ represents whether its from dashboard call
+	AllSeriesRetrieved(Result(#(Bool, model.SeriesList), http.HttpError))
+
 	// Auth
 	AuthPage(auth.Msg)
 	LoginGot(Result(auth.User, http.HttpError))

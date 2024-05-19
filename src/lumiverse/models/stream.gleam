@@ -1,4 +1,6 @@
 import gleam/dynamic
+import gleam/option
+
 import lumiverse/models/series
 import lumiverse/model
 
@@ -9,8 +11,8 @@ pub type DashboardItem {
 		provided: Bool,
 		order: Int,
 		stream_type: StreamType,
-		visible: Bool
-		//smart_filter_encoded: String,
+		visible: Bool,
+		smart_filter_encoded: option.Option(String),
 		//smart_filter_id: String,
 	)
 }
