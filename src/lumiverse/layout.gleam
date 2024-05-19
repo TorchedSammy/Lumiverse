@@ -42,59 +42,11 @@ pub type Msg {
 	NextChapterRetrieved(Result(Int, http.HttpError))
 }
 
-pub fn nav_(model: model.Model) -> element.Element(a) {
-	html.nav([attribute.class("navbar navbar-expand-lg border-bottom" <> case model.route {
-		router.Reader(_) -> ""
-		_ -> " fixed-top mb-3 navbar-transition"
-	})], [
-		html.div([attribute.class("container-fluid")], [
-			html.a([attribute.class("navbar-brand"), attribute.href("/")], [
-				html.img([
-					attribute.src(config.logo()),
-					attribute.class("logo")
-				]),
-				html.span([attribute.class("navbar-brand-text")], [element.text("Lumiverse")]),
-			]),
-			html.div([attribute.class("navbar-nav")], [
-				case model.user {
-					option.Some(user) -> html.div([attribute.class("dropdown")], [
-						html.button([attribute.class("btn btn-secondary dropdown-toggle"), attribute.attribute("data-bs-toggle", "dropdown"), attribute.attribute("type", "button")], [
-							element.text(user.username)
-						]),
-						html.div([attribute.class("dropdown-menu p-3")], [
-							html.div([attribute.class("mt-3 mb-3")], [
-								html.div([attribute.class("d-grid justify-content-center")], [
-									html.span([attribute.class("fw-bold fs-4 mb-1")], [element.text(user.username)])
-								]),
-								html.div([attribute.class("d-grid justify-content-center")], [
-									html.span([attribute.class("badge text-bg-light")], [element.text("User")])
-								]),
-							]),
-							html.hr([attribute.class("border border-primary")]),
-							html.div([], [
-								drop_item("bookmark", "Bookmarks", "/bookmarks"),
-								drop_item("bars", "Settings", "/settings"),
-								drop_item("filter", "Filters", "/filters"),
-								drop_item("info-circle", "Announcements", "/announcements"),
-							]),
-							html.hr([attribute.class("border border-primary")]),
-							drop_item("sign-out", "Log Out", "/signout")
-						])
-					])
-					option.None -> html.a([attribute.class("nav-link"), attribute.href("/login")], [
-						html.button([
-							attribute.attribute("type", "button"),
-							attribute.class("btn"),
-						], [element.text("Login")])
-					])
-				}
-			])
-		])
-	])
-}
-
 pub fn nav(model: model.Model) {
-	html.nav([], [
+	html.nav([attribute.class("bg-zinc-950" <> case model.route {
+		route.Reader(_) -> ""
+		_ -> " sticky top-0 left-0 right-0"
+	})], [
 		html.div([attribute.class("max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4")], [
 			html.a([attribute.href("/"), attribute.class("flex items-center space-x-3")], [
 				html.img([
@@ -127,6 +79,7 @@ fn drop_item(icon: String, name: String, href: String) -> element.Element(a) {
 		])
 	])
 }
+
 pub fn footer() -> element.Element(a) {
 	html.footer([], [
 		html.div([attribute.class("container")], [
