@@ -37,7 +37,8 @@ pub type HomeModel {
 	HomeModel(
 		carousel_smalldata: List(series.MinimalInfo),
 		carousel: List(series.Metadata),
-		series_lists: List(SeriesList)
+		series_lists: List(SeriesList),
+		dashboard_count: Int
 	)
 }
 

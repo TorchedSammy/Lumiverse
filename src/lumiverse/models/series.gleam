@@ -47,6 +47,14 @@ pub fn minimal_decoder() {
 	)
 }
 
+pub fn recently_updated_decoder() {
+	dynamic.decode2(
+		MinimalInfo,
+		dynamic.field("seriesId", dynamic.int),
+		dynamic.field("seriesName", dynamic.string),
+	)
+}
+
 pub type Publication {
 	Ongoing
 	Hiatus

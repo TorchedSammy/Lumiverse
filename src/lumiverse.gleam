@@ -1,3 +1,4 @@
+import gleam/bool
 import gleam/dict
 import gleam/option
 import gleam/result
@@ -71,7 +72,8 @@ fn init(_) {
 		home: model.HomeModel(
 			carousel: [],
 			carousel_smalldata: [],
-			series_lists: []
+			series_lists: [],
+			dashboard_count: 0
 		),
 		metadatas: dict.new(),
 		series: dict.new(),
@@ -157,12 +159,24 @@ fn update(model: model.Model, msg: layout.Msg) -> #(model.Model, Effect(layout.M
 			let fetchers = list.map(list.filter(dashboard, fn(itm) {itm.visible}), fn(dash_item: stream.DashboardItem) {
 				case dash_item.stream_type {
 					stream.OnDeck -> series_req.on_deck(user.token, dash_item.order, "Continue Reading")
+					stream.RecentlyUpdated -> series_req.recently_updated(user.token, dash_item.order, "Latest Updates")
 					stream.NewlyAdded -> series_req.recently_added(user.token, dash_item.order, "Newly Added Series")
 					_ -> effect.none()
 				}
 			})
 
-			#(model, effect.batch(list.unique(fetchers)))
+			#(model.Model(
+				..model,
+				home: model.HomeModel(
+					..model.home,
+					dashboard_count: list.length(list.filter(dashboard, fn(itm) {
+						bool.and(itm.visible, case itm.stream_type {
+							stream.SmartFilter | stream.MoreInGenre -> False
+							_ -> True
+						})
+					}))
+				)
+			), effect.batch(list.unique(fetchers)))
 		}
 		layout.DashboardRetrieved(Error(e)) -> {
 			io.debug(e)
