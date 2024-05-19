@@ -10,7 +10,6 @@ import lumiverse/model
 import lumiverse/models/series
 import router
 
-
 pub fn series_list(serieslist: List(element.Element(layout.Msg))) {
 	html.div([attribute.class("flex flex-nowrap space-x-5 w-full flex gap-4 snap-x snap-mandatory overflow-x-auto")], serieslist)
 }
@@ -26,7 +25,7 @@ pub fn card(model: model.Model, srs: series.MinimalInfo) -> element.Element(layo
 	html.a([attribute.href("/series/" <> int.to_string(srs.id))], [
 		html.div([attribute.class("w-48 space-y-2")], [
 			html.img([attribute.src(cover_url), attribute.class("rounded bg-zinc-800 w-full object-cover h-72")]),
-			html.div([], [element.text(srs.name)])
+			html.div([attribute.class("font-medium")], [element.text(srs.name)])
 		])
 	])
 }

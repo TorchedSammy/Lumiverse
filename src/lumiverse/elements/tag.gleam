@@ -7,13 +7,13 @@ import lustre/element/html
 import lumiverse/layout
 
 pub fn list(tags: List(String))  -> element.Element(layout.Msg) {
-	html.div([attribute.class("tag-list")], list.map(tags, fn(t: String) -> element.Element(layout.Msg) {
+	html.div([attribute.class("space-x-1")], list.map(tags, fn(t: String) -> element.Element(layout.Msg) {
 		single(t)
 	}))
 }
 
 pub fn single(tag: String) -> element.Element(layout.Msg) {
-	html.span([attribute.class("tag badge text-bg-secondary")], [
+	html.span([attribute.class("bg-zinc-800 rounded py-0.5 px-1")], [
 		element.text(tag)
 	])
 }

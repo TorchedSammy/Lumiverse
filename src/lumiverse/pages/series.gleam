@@ -4,7 +4,7 @@ import gleam/list
 import gleam/option
 import gleam/string
 
-import lustre/attribute
+import lustre/attribute.{class}
 import lustre/element
 import lustre/element/html
 import lustre/event
@@ -17,6 +17,8 @@ import lumiverse/elements/chapter
 import lumiverse/pages/not_found
 import router
 
+import lumiverse/components/button.{button}
+
 pub fn page(model: model.Model) -> element.Element(layout.Msg) {
 	case model.viewing_series {
 		option.Some(serie) -> case serie {
@@ -28,138 +30,93 @@ pub fn page(model: model.Model) -> element.Element(layout.Msg) {
 }
 
 fn real_page(model: model.Model) -> element.Element(layout.Msg) {
-	let placeholder_class = case model.viewing_series {
-		option.None -> " placeholder placeholder-glow"
-		option.Some(_) -> ""
-	}
-
-	html.main([attribute.class("container series-page")], [
-		html.div([], [
-			html.div([attribute.class("series-bg-image bg-image-backdrop"), attribute.style(case model.viewing_series {
-				option.Some(serie) -> {
-					let assert Ok(srs) = serie
-					let assert Ok(metadata) = dict.get(model.metadatas, srs.id)
-					let assert option.Some(user) = model.user
-					let cover_url = router.direct("/api/image/series-cover?seriesId=" <> int.to_string(srs.id) <> "&apiKey=" <> user.api_key)
-
-					[#("background-image", "url('" <> cover_url <> "')")]
-				}
-				option.None -> []
-			})], []),
-			html.div([attribute.attribute("loading", "lazy"), attribute.class("series-bg-image bg-image-backdrop"), attribute.style([
-				#("background", "linear-gradient(67.81deg,rgba(0,0,0,.64) 35.51%,transparent)"),
-				#("backdrop-filter", "blur(4px)")
-			])], [])
-		]),
-		html.div([attribute.class("info")], [
+	let assert option.Some(user) = model.user
+	html.div([class("max-w-screen-xl items-center justify-between mx-auto mb-8 p-4 space-y-4")], [
+		html.div([class("flex flex-col sm:flex-row md:flex-row gap-4")], [
 			case model.viewing_series {
 				option.Some(serie) -> {
 					let assert Ok(srs) = serie
-					let assert Ok(metadata) = dict.get(model.metadatas, srs.id)
-					let assert option.Some(user) = model.user
 					let cover_url = router.direct("/api/image/series-cover?seriesId=" <> int.to_string(srs.id) <> "&apiKey=" <> user.api_key)
 
-					html.img([
-						attribute.attribute("loading", "lazy"),
-						attribute.src(cover_url),
-						attribute.class("img-fluid cover")
+					html.div([class("max-w-64")], [
+						html.img([class("bg-zinc-800 rounded object-contain min-w-48 min-h-80"), attribute.src(cover_url)])
 					])
 				}
-				option.None -> {
-					html.img([
-						attribute.attribute("loading", "lazy"),
-						attribute.class("img-fluid cover placeholder")
-					])
-				}
+				option.None -> html.div([class("bg-zinc-800 rounded animate-pulse h-80 w-48")], [])
 			},
-			html.div([attribute.class("names d-flex")],
-			case model.viewing_series {
-				option.Some(serie) -> {
-					let assert Ok(srs) = serie
-					let assert Ok(metadata) = dict.get(model.metadatas, srs.id)
-					let assert option.Some(user) = model.user
-					let cover_url = router.direct("/api/image/series-cover?seriesId=" <> int.to_string(srs.id) <> "&apiKey=" <> user.api_key)
+			html.div([attribute.class("flex flex-col gap-5")], [
+				html.div([class("space-y-2")], case model.viewing_series {
+					option.Some(serie) -> {
+						let assert Ok(srs) = serie
 
-					[
-						html.h1([attribute.class("title")], [element.text(srs.name)]),
-						html.p([attribute.class("subtitle")], [element.text(srs.name)]),
-						html.div([attribute.style([
-							#("flex-grow", "1"),
-							#("display", "block")
-						])], []),
-						html.p([attribute.class("authors mb-1")], [
-							element.text(string.join(["Yamada Kanehito", "Abe Tsukasa"], ", "))
-						])
+						[
+							html.h1([
+								class("font-['Poppins'] font-extrabold text-xl sm:text-5xl")
+							], [element.text(srs.name)]),
+							html.h2([
+								class("font-['Poppins'] font-medium sm:font-semibold text-lg sm:text-xl")
+							], [element.text(srs.name)]),
+						]
+					}
+					option.None -> [
+						html.div([
+							class("bg-zinc-800 animate-pulse h-12 w-96")
+						], []),
+						html.div([
+							class("bg-zinc-800 animate-pulse h-7 w-48")
+						], [])
 					]
-				}
-				option.None -> [
-					html.h1([attribute.class("title placeholder placeholder-glow col-4 placeholder-lg")], []),
-					html.p([attribute.class("subtitle placeholder placeholder-glow col-4 placeholder-sm")], []),
-					html.div([attribute.style([
-						#("flex-grow", "1"),
-						#("display", "block")
-					])], []),
-					html.span([attribute.class("authors placeholder placeholder-glow col-4 placeholder-xs")], [
-						element.text(string.join(["Yamada Kanehito", "Abe Tsukasa"], ", "))
-					])
-				]
-			}),
-			html.div([attribute.class("buttons row px-1")], [
-				html.div([attribute.class("col-auto")], [
-					html.button([event.on_click(layout.Read), attribute.attribute("type", "button"), attribute.class("btn btn-lg" <> placeholder_class <> case model.viewing_series {
-						option.Some(_) -> " btn-primary"
-						option.None -> "disabled"
-					})], [
+				}),
+				html.div([], [
+					button([
+						button.solid(button.Primary),
+						button.lg(),
+						class("text-white font-semibold")
+					], [
 						html.span([attribute.class("icon-book")], []),
 						element.text("Start Reading")
 					])
-				])
-			]),
-			case model.viewing_series {
-				option.Some(serie) -> {
-					let assert Ok(srs) = serie
-					let assert Ok(metadata) = dict.get(model.metadatas, srs.id)
+				]),
+				case model.viewing_series {
+					option.Some(serie) -> {
+						let assert Ok(srs) = serie
+						let assert Ok(metadata) = dict.get(model.metadatas, srs.id)
 
-					html.div([attribute.class("d-flex tagandpub px-1")], list.append(
-						{
-							let tags = list.append(list.map(metadata.tags, fn(t) {t.title}), list.map(metadata.genres, fn(t) {t.title}))
-							case list.length(tags) {
-								0 -> []
-								_ -> [tag.list(tags)]
-							}
-						},
-						[
-							html.div([attribute.class("publication")], [
-								html.span([attribute.class("icon-circle"), attribute.attribute("data-publication", series.publication_title(metadata.publication_status))], []),
-								html.span([attribute.class("publication-text")], [element.text("Publication: " <> series.publication_title(metadata.publication_status))])
-							])
-						]
-					))
+						html.div([class("flex flex-wrap gap-2 uppercase font-['Poppins'] font-semibold text-[0.7rem]")], list.append(
+							{
+								let tags = list.append(list.map(metadata.tags, fn(t) {t.title}), list.map(metadata.genres, fn(t) {t.title}))
+								case list.length(tags) {
+									0 -> []
+									_ -> [tag.list(tags)]
+								}
+							},
+							[
+								html.div([attribute.class("space-x-1")], [
+									html.span([
+										class("icon-circle text-publication-" <> series.publication_title(metadata.publication_status)),
+										attribute.attribute("data-publication", series.publication_title(metadata.publication_status))
+									], []),
+									html.span([], [
+										element.text("Publication: " <> series.publication_title(metadata.publication_status))
+									])
+								])
+							]
+						))
+					}
+					option.None -> html.div([class("bg-zinc-800 animate-pulse w-80 h-4")], [])
 				}
-				option.None -> html.div([attribute.class("d-flex tagandpub")], [
-					html.div([attribute.class("d-flex tag-list col-6 placeholder placeholder-glow placeholder-sm")], []),
-					html.div([attribute.class("publication")], [
-						html.span([attribute.class("publication-text placeholder placeholder-glow placeholder-sm")], [])
-					])
-				])
-			},
-			case model.viewing_series {
-				option.Some(serie) -> {
-					let assert Ok(srs) = serie
-					let assert Ok(metadata) = dict.get(model.metadatas, srs.id)
+			])
+		]),
+		case model.viewing_series {
+			option.None -> html.div([], [])
+			option.Some(serie) -> {
+				let assert Ok(srs) = serie
+				let assert Ok(metadata) = dict.get(model.metadatas, srs.id)
 
-					html.div([attribute.style([
-						#("grid-area", "summary")
-					])], [
-						html.p([], [
-							element.text(metadata.summary)
-						])
-					])
-				}
-				option.None -> html.div([attribute.class("d-flex justify-content-center")], [
-					html.div([attribute.class("spinner-border")], [])
+				html.div([], [
+					html.p([], [element.text(metadata.summary)])
 				])
 			}
-		]),
+		}
 	])
 }
