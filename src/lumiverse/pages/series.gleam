@@ -83,7 +83,7 @@ fn real_page(model: model.Model) -> element.Element(layout.Msg) {
 						let assert Ok(srs) = serie
 						let assert Ok(metadata) = dict.get(model.metadatas, srs.id)
 
-						html.div([class("flex flex-wrap gap-2 uppercase font-['Poppins'] font-semibold text-[0.7rem]")], list.append(
+						html.div([class("items-baseline flex flex-wrap gap-2 uppercase font-['Poppins'] font-semibold text-[0.7rem]")], list.append(
 							{
 								let tags = list.append(list.map(metadata.tags, fn(t) {t.title}), list.map(metadata.genres, fn(t) {t.title}))
 								case list.length(tags) {
