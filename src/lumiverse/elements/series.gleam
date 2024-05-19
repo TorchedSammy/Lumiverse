@@ -23,9 +23,9 @@ pub fn card(model: model.Model, srs: series.MinimalInfo) -> element.Element(layo
 	let cover_url = router.direct("/api/image/series-cover?seriesId=" <> int.to_string(srs.id) <> "&apiKey=" <> user.api_key)
 
 	html.a([attribute.href("/series/" <> int.to_string(srs.id))], [
-		html.div([attribute.class("w-48 space-y-2")], [
-			html.img([attribute.src(cover_url), attribute.class("rounded bg-zinc-800 w-full object-cover h-72")]),
-			html.div([attribute.class("font-medium")], [element.text(srs.name)])
+		html.div([attribute.class("sm:w-48 w-24 space-y-2")], [
+			html.img([attribute.src(cover_url), attribute.class("rounded bg-zinc-800 w-full object-cover sm:h-72 h-44")]),
+			html.div([attribute.class("font-medium text-xs md:text-base")], [element.text(srs.name)])
 		])
 	])
 }
