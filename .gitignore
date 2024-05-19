@@ -2,5 +2,4 @@
 *.ez
 /build
 erl_crash.dump
-/priv/static/lumiverse.mjs
-/priv/static/lumiverse.css
+/priv/static/lumiverse.*
