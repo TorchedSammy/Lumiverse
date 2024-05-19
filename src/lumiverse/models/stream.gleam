@@ -43,11 +43,11 @@ pub fn dynamic_streamtype(from: dynamic.Dynamic) -> Result(StreamType, List(dyna
 	}
 }
 
-pub fn dashboard_series_list_decoder(order: Int) {
+pub fn dashboard_series_list_decoder(order: Int, title: String) {
 	fn(from: dynamic.Dynamic) {
 		let decoder = dynamic.list(series.minimal_decoder())
 		case decoder(from) {
-			Ok(series) -> Ok(model.SeriesList(items: series, idx: order))
+			Ok(series) -> Ok(model.SeriesList(items: series, title: title, idx: order))
 			Error(e) -> Error(e)
 		}
 	}

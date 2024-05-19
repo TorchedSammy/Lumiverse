@@ -42,5 +42,5 @@ pub type HomeModel {
 }
 
 pub type SeriesList {
-	SeriesList(items: List(series.MinimalInfo), idx: Int)
+	SeriesList(items: List(series.MinimalInfo), title: String, idx: Int)
 }

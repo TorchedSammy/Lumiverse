@@ -10,12 +10,15 @@ import lumiverse/model
 import lumiverse/models/series
 import router
 
-pub fn series_list(serieslist: List(element.Element(layout.Msg))) {
-	html.div([attribute.class("flex flex-nowrap space-x-5 w-full flex gap-4 snap-x snap-mandatory overflow-x-auto")], serieslist)
+pub fn series_list(serieslist: List(element.Element(layout.Msg)), title: String) {
+	html.div([attribute.class("flex flex-col gap-2")], [
+		html.h1([attribute.class("text-lg sm:text-3xl font-bold sm:font-extrabold font-['Poppins']")], [element.text(title)]),
+		html.div([attribute.class("flex flex-nowrap space-x-5 w-full flex gap-4 snap-x snap-mandatory overflow-x-auto")], serieslist)
+	])
 }
 
 pub fn placeholder_series_list() {
-	series_list(list.repeat(placeholder_card(), 5))
+	series_list(list.repeat(placeholder_card(), 5), "")
 }
 
 pub fn card(model: model.Model, srs: series.MinimalInfo) -> element.Element(layout.Msg) {

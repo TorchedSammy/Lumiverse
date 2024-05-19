@@ -156,7 +156,8 @@ fn update(model: model.Model, msg: layout.Msg) -> #(model.Model, Effect(layout.M
 			let assert option.Some(user) = model.user
 			let fetchers = list.map(list.filter(dashboard, fn(itm) {itm.visible}), fn(dash_item: stream.DashboardItem) {
 				case dash_item.stream_type {
-					stream.NewlyAdded -> series_req.recently_added(user.token, dash_item.order)
+					stream.OnDeck -> series_req.on_deck(user.token, dash_item.order, "Continue Reading")
+					stream.NewlyAdded -> series_req.recently_added(user.token, dash_item.order, "Newly Added Series")
 					_ -> effect.none()
 				}
 			})
@@ -167,7 +168,7 @@ fn update(model: model.Model, msg: layout.Msg) -> #(model.Model, Effect(layout.M
 			io.debug(e)
 			todo as "handle dashboard retrieve failure"
 		}
-		layout.HomeRecentlyAddedUpdate(Ok(series)) -> {
+		layout.DashboardItemRetrieved(Ok(series)) -> {
 			case model.user {
 				option.Some(user) -> {
 					let metadata_fetchers = list.map(series.items, fn(s: series_model.MinimalInfo) {
@@ -191,7 +192,7 @@ fn update(model: model.Model, msg: layout.Msg) -> #(model.Model, Effect(layout.M
 				option.None -> #(model, effect.none())
 			}
 		}
-		layout.HomeRecentlyAddedUpdate(Error(e)) -> {
+		layout.DashboardItemRetrieved(Error(e)) -> {
 			io.println("failure")
 			io.debug(e)
 			#(model, effect.none())

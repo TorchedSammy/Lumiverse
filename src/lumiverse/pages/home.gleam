@@ -44,12 +44,12 @@ pub fn page(model: model.Model) -> element.Element(layout.Msg) {
 				//		)
 				//	])
 				//]),
-				html.div([attribute.class("max-w-screen-xl flex flex-wrap items-center justify-between mx-auto mb-8 p-4 space-y-8")], 
+				html.div([attribute.class("max-w-screen-xl flex flex-nowrap flex-col mx-auto mb-8 px-4 space-y-8")], 
 					list.take(list.flatten([
 						list.map(model.home.series_lists, fn(serie_list) {
 							series.series_list(list.map(serie_list.items, fn(serie) {
 								series.card(model, serie)
-							}))
+							}), serie_list.title)
 						}),
 						list.repeat(series.placeholder_series_list(), 3)
 					]), 3)

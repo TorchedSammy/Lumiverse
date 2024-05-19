@@ -59,8 +59,8 @@ fn tag_decoder() {
 	)
 }
 
-pub fn recently_added(token: String, order: Int) {
-	let assert Ok(req) = request.to(router.direct("/api/series/recently-added-v2?pageNumber=1&pageSize=5"))
+pub fn recently_added(token: String, order: Int, title: String) {
+	let assert Ok(req) = request.to(router.direct("/api/series/recently-added-v2?pageNumber=1&pageSize=10"))
 
 	let req = req
 	|> request.set_method(http.Post)
@@ -69,7 +69,20 @@ pub fn recently_added(token: String, order: Int) {
 	|> request.set_header("Accept", "application/json")
 	|> request.set_header("Content-Type", "application/json")
 
-	lustre_http.send(req, lustre_http.expect_json(stream.dashboard_series_list_decoder(order), layout.HomeRecentlyAddedUpdate))
+	lustre_http.send(req, lustre_http.expect_json(stream.dashboard_series_list_decoder(order, title), layout.DashboardItemRetrieved))
+}
+
+pub fn on_deck(token: String, order: Int, title: String) {
+	let assert Ok(req) = request.to(router.direct("/api/series/on-deck?pageNumber=1&pageSize=10"))
+
+	let req = req
+	|> request.set_method(http.Post)
+	|> request.set_body(json.object([]) |> json.to_string)
+	|> request.set_header("Authorization", "Bearer " <> token)
+	|> request.set_header("Accept", "application/json")
+	|> request.set_header("Content-Type", "application/json")
+
+	lustre_http.send(req, lustre_http.expect_json(stream.dashboard_series_list_decoder(order, title), layout.DashboardItemRetrieved))
 }
 
 pub fn series(series_id: Int, token: String) {

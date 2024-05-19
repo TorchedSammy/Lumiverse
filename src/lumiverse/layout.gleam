@@ -26,7 +26,7 @@ pub type Msg {
 
 	//Home
 	DashboardRetrieved(Result(List(stream.DashboardItem), http.HttpError))
-	HomeRecentlyAddedUpdate(Result(model.SeriesList, http.HttpError))
+	DashboardItemRetrieved(Result(model.SeriesList, http.HttpError))
 	SeriesRetrieved(Result(series.MinimalInfo, http.HttpError))
 	SeriesMetadataRetrieved(Result(series.Metadata, http.HttpError))
 
