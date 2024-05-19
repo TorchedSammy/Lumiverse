@@ -20,47 +20,44 @@ import router
 
 pub fn page(model: model.Model) -> element.Element(layout.Msg) {
 	case model.reader_progress {
-		option.None -> html.div([attribute.class("container-fluid fullscreen d-flex align-items-center justify-content-center flex-column")], [
-			html.div([attribute.class("spinner-border text-primary")], [])
-		])
+		option.None -> html.div([], [])
 		option.Some(progress) -> {
 			let assert option.Some(user) = model.user
 			let page_image = router.direct("/api/reader/image?chapterId=" <> int.to_string(progress.chapter_id) <> "&page=" <> int.to_string(progress.page_number) <> "&apiKey=" <> user.api_key)
 
-			html.div([attribute.class("d-flex flex-column"), attribute.id("reader-page"), attribute.style([
+			html.div([attribute.class("items-center justify-between"), attribute.id("reader-page"), attribute.style([
 				#("position", "relative")
 			])], [
-				html.div([attribute.class("container-fluid d-flex flex-column border-bottom")], [
-					html.div([attribute.class("d-flex flex-column gap-1")], case model.viewing_series {
+				html.div([attribute.class("border-b-2 border-zinc-800 p-4 space-y-2")], [
+					html.div([attribute.class("")], case model.viewing_series {
 						option.None -> [
-							html.p([attribute.class("placeholder placeholder-glow col-4 fs-5 mb-1")], [element.text("MMmmAHHaeiougAEIOUGH")]),
-							html.p([attribute.class("placeholder placeholder-glow placeholder-sm col-3 mb-1")], [])
+							html.div([attribute.class("animate-pulse h-4 w-48")], []),
+							html.div([attribute.class("animate-pulse h-4 w-48")], [])
 						]
 						option.Some(serie) -> {
 							let assert Ok(srs) = serie
 
 							[
-								html.p([attribute.class("mb-0 fs-5")], [element.text(srs.name)]),
-								html.p([attribute.class("text-primary mb-0")], [element.text(srs.name)]),
+								html.p([attribute.class("")], [element.text(srs.name)]),
+								html.p([attribute.class("text-violet-600")], [element.text(srs.name)]),
 							]
 						}
 					}),
-					html.div([attribute.class("row gap-3 p-3 mb-2")], case model.viewing_series, model.continue_point, model.chapter_info {
+					html.div([attribute.class("grid grid-cols-2 gap-2")], case model.viewing_series, model.continue_point, model.chapter_info {
 						option.Some(serie), option.Some(cont_point), option.Some(inf) -> {
 							[
-								html.span([attribute.class("badge text-bg-secondary fs-6 col")], [element.text("Page " <> int.to_string(progress.page_number + 1) <> " / " <> int.to_string(inf.pages))]),
-								html.span([attribute.class("badge text-bg-secondary fs-6 col")], [element.text("Menu")]),
+								html.span([attribute.class("bg-zinc-800 rounded py-0.5 px-1")], [element.text("Page " <> int.to_string(progress.page_number + 1) <> " / " <> int.to_string(inf.pages))]),
+								html.span([attribute.class("bg-zinc-800 rounded py-0.5 px-1")], [element.text("Menu")]),
 							]
 						}
 						_, _, _ -> {
 							[
-								html.span([attribute.class("fs-6 col placeholder placeholder-glow")], [element.text("...")]),
-								html.span([attribute.class("fs-6 col placeholder placeholder-glow")], [element.text("Menu")]),
+								html.div([attribute.class("animate-pulse h-12")], []),
+								html.div([attribute.class("animate-pulse h-12")], [])
 							]
 						}
 					})
 				]),
-				html.div([attribute.class("d-flex justify-content-center")], [
 					html.div([event.on_click(layout.ReaderPrevious), attribute.style([
 						#("position", "absolute"),
 						#("top", "0"),
@@ -75,9 +72,8 @@ pub fn page(model: model.Model) -> element.Element(layout.Msg) {
 						#("right", "0"),
 						#("width", "50vw"),
 					])], []),
-				]),
-				html.div([attribute.class("d-flex justify-content-center fullscreen")], [
-					html.img([attribute.class("img-fluid h-full align-self-center"), attribute.id("reader-img"), attribute.src(page_image)])
+				html.div([attribute.class("flex justify-center items-center h-screen")], [
+					html.img([attribute.class("h-screen object-contain"), attribute.id("reader-img"), attribute.src(page_image)])
 				])
 			])
 		}
