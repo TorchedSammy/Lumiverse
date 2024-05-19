@@ -36,6 +36,11 @@ pub type AuthModel {
 pub type HomeModel {
 	HomeModel(
 		carousel_smalldata: List(series.MinimalInfo),
-		carousel: List(series.Metadata)
+		carousel: List(series.Metadata),
+		series_lists: List(SeriesList)
 	)
+}
+
+pub type SeriesList {
+	SeriesList(items: List(series.MinimalInfo), idx: Int)
 }

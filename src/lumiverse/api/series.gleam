@@ -11,6 +11,7 @@ import gleam/io
 import lustre_http
 
 import lumiverse/models/series
+import lumiverse/models/stream
 import lumiverse/layout
 import router
 
@@ -58,7 +59,7 @@ fn tag_decoder() {
 	)
 }
 
-pub fn recently_added(token: String) {
+pub fn recently_added(token: String, order: Int) {
 	let assert Ok(req) = request.to(router.direct("/api/series/recently-added-v2?pageNumber=1&pageSize=5"))
 
 	let req = req
@@ -68,7 +69,7 @@ pub fn recently_added(token: String) {
 	|> request.set_header("Accept", "application/json")
 	|> request.set_header("Content-Type", "application/json")
 
-	lustre_http.send(req, lustre_http.expect_json(dynamic.list(minimal_decoder()), layout.HomeRecentlyAddedUpdate))
+	lustre_http.send(req, lustre_http.expect_json(stream.dashboard_series_list_decoder(order), layout.HomeRecentlyAddedUpdate))
 }
 
 pub fn series(series_id: Int, token: String) {

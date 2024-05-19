@@ -1,14 +1,17 @@
 import gleam/option
 import gleam/dynamic
+import gleam/http
+import gleam/http/request
 import gleam/json
 
 import gleam/io
 
-import lustre_http as http
+import lustre_http
 
 import router
 
 import lumiverse/models/auth
+import lumiverse/models/stream
 import lumiverse/layout
 
 fn decoder() {
@@ -27,7 +30,7 @@ pub fn login(username: String, password: String) {
 		#("apiKey", json.string(""))
 	])
 
-	http.post(router.direct("/api/account/login"), req_json, http.expect_json(decoder(), layout.LoginGot))
+	lustre_http.post(router.direct("/api/account/login"), req_json, lustre_http.expect_json(decoder(), layout.LoginGot))
 }
 
 pub fn decode_login_json(jd: String) -> Result(auth.User, json.DecodeError) {
@@ -44,5 +47,30 @@ pub fn encode_login_json(user: auth.User) -> String {
 }
 
 pub fn health() {
-	http.get(router.direct("/api/health"), http.expect_anything(layout.HealthCheck))
+	lustre_http.get(router.direct("/api/health"), lustre_http.expect_anything(layout.HealthCheck))
+}
+
+fn dashboard_decoder() {
+	dynamic.list(dynamic.decode6(
+		stream.DashboardItem,
+		dynamic.field("id", dynamic.int),
+		dynamic.field("name", dynamic.string),
+		dynamic.field("isProvided", dynamic.bool),
+		dynamic.field("order", dynamic.int),
+		dynamic.field("streamType", stream.dynamic_streamtype),
+		dynamic.field("visible", dynamic.bool),
+	))
+}
+
+pub fn dashboard(token: String) {
+	let assert Ok(req) = request.to(router.direct("/api/stream/dashboard"))
+
+	let req = req
+	|> request.set_method(http.Get)
+	|> request.set_body(json.object([]) |> json.to_string)
+	|> request.set_header("Authorization", "Bearer " <> token)
+	|> request.set_header("Accept", "application/json")
+	|> request.set_header("Content-Type", "application/json")
+
+	lustre_http.send(req, lustre_http.expect_json(dashboard_decoder(), layout.DashboardRetrieved))
 }

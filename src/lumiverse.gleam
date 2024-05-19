@@ -29,6 +29,7 @@ import lumiverse/models/series as series_model
 import lumiverse/models/auth as auth_model
 import lumiverse/models/reader as reader_model
 import lumiverse/models/router
+import lumiverse/models/stream
 import lumiverse/layout
 import lumiverse/pages/reader as reader_page
 import lumiverse/pages/home
@@ -69,7 +70,8 @@ fn init(_) {
 		),
 		home: model.HomeModel(
 			carousel: [],
-			carousel_smalldata: []
+			carousel_smalldata: [],
+			series_lists: []
 		),
 		metadatas: dict.new(),
 		series: dict.new(),
@@ -97,7 +99,7 @@ fn homepage_display(user: option.Option(auth_model.User)) -> Effect(layout.Msg) 
 		}
 		option.Some(user) -> {
 			io.println("getting recently added")
-			series_req.recently_added(user.token)
+			api.dashboard(user.token)
 		}
 	}
 }
@@ -150,17 +152,41 @@ fn update(model: model.Model, msg: layout.Msg) -> #(model.Model, Effect(layout.M
 		}
 		layout.HealthCheck(Ok(Nil)) -> #(model.Model(..model, health_failed: option.Some(False)), route_effect(model, router_handler.uri_to_route(router_handler.get_route())))
 		layout.HealthCheck(Error(_)) -> #(model.Model(..model, health_failed: option.Some(True)), effect.none())
+		layout.DashboardRetrieved(Ok(dashboard)) -> {
+			let assert option.Some(user) = model.user
+			let fetchers = list.map(list.filter(dashboard, fn(itm) {itm.visible}), fn(dash_item: stream.DashboardItem) {
+				case dash_item.stream_type {
+					stream.NewlyAdded -> series_req.recently_added(user.token, dash_item.order)
+					_ -> effect.none()
+				}
+			})
+
+			#(model, effect.batch(list.unique(fetchers)))
+		}
+		layout.DashboardRetrieved(Error(e)) -> {
+			io.debug(e)
+			todo as "handle dashboard retrieve failure"
+		}
 		layout.HomeRecentlyAddedUpdate(Ok(series)) -> {
 			case model.user {
 				option.Some(user) -> {
-					let metadata_fetchers = list.map(series, fn(s: series_model.MinimalInfo) {
+					let metadata_fetchers = list.map(series.items, fn(s: series_model.MinimalInfo) {
 						series_req.metadata(s.id, user.token)
 					})
-					let new_series = dict.from_list(list.map(series, fn(s: series_model.MinimalInfo) {
+					let new_series = dict.from_list(list.map(series.items, fn(s: series_model.MinimalInfo) {
 						#(s.id, s)
 					}))
 					|> dict.merge(model.series)
-					#(model.Model(..model, home: model.HomeModel(..model.home, carousel_smalldata: series), series: new_series), effect.batch(metadata_fetchers))
+					#(model.Model(..model,
+						home: model.HomeModel(
+							..model.home,
+							series_lists: list.unique(list.sort([series, ..model.home.series_lists], fn(list_a, list_b) {
+								int.compare(list_a.idx, list_b.idx)
+							})),
+							carousel_smalldata: series.items
+						),
+						series: new_series
+					), effect.batch(metadata_fetchers))
 				}
 				option.None -> #(model, effect.none())
 			}

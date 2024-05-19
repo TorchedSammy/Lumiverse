@@ -11,6 +11,7 @@ import lumiverse/models/auth
 import lumiverse/models/reader
 import lumiverse/models/router
 import lumiverse/models/series
+import lumiverse/models/stream
 import lumiverse/components/button.{button}
 
 // TODO: put messages related to a specific page in separate source
@@ -24,7 +25,8 @@ pub type Msg {
 	LoginGot(Result(auth.User, http.HttpError))
 
 	//Home
-	HomeRecentlyAddedUpdate(Result(List(series.MinimalInfo), http.HttpError))
+	DashboardRetrieved(Result(List(stream.DashboardItem), http.HttpError))
+	HomeRecentlyAddedUpdate(Result(model.SeriesList, http.HttpError))
 	SeriesRetrieved(Result(series.MinimalInfo, http.HttpError))
 	SeriesMetadataRetrieved(Result(series.Metadata, http.HttpError))
 

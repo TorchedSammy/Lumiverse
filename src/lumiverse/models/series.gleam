@@ -1,3 +1,5 @@
+import gleam/dynamic
+
 pub type Manga {
 	Manga(
 		name: String,
@@ -34,6 +36,14 @@ pub type MinimalInfo {
 	MinimalInfo(
 		id: Int,
 		name: String
+	)
+}
+
+pub fn minimal_decoder() {
+	dynamic.decode2(
+		MinimalInfo,
+		dynamic.field("id", dynamic.int),
+		dynamic.field("name", dynamic.string),
 	)
 }
 
