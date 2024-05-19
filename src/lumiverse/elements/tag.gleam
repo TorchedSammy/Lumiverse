@@ -7,14 +7,14 @@ import lustre/element/html
 import lumiverse/layout
 
 pub fn list(tags: List(String))  -> element.Element(layout.Msg) {
-	html.div([attribute.class("space-x-1")], list.map(tags, fn(t: String) -> element.Element(layout.Msg) {
+	html.div([attribute.class("flex flex-wrap gap-2")], list.map(tags, fn(t: String) -> element.Element(layout.Msg) {
 		single(t)
 	}))
 }
 
 pub fn single(tag: String) -> element.Element(layout.Msg) {
-	html.span([attribute.class("bg-zinc-800 rounded py-0.5 px-1")], [
-		element.text(tag)
+	html.div([attribute.class("bg-zinc-800 rounded py-0.5 px-1")], [
+		html.span([], [element.text(tag)])
 	])
 }
 
