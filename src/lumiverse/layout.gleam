@@ -44,7 +44,7 @@ pub type Msg {
 
 pub fn nav(model: model.Model) {
 	html.nav([attribute.class("bg-zinc-950" <> case model.route {
-		route.Reader(_) -> ""
+		router.Reader(_) -> ""
 		_ -> " sticky top-0 left-0 right-0"
 	})], [
 		html.div([attribute.class("max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4")], [
