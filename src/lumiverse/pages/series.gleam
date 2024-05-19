@@ -69,6 +69,7 @@ fn real_page(model: model.Model) -> element.Element(layout.Msg) {
 				}),
 				html.div([], [
 					button([
+						event.on_click(layout.Read),
 						button.solid(button.Primary),
 						button.lg(),
 						class("text-white font-semibold")
