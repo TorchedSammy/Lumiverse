@@ -35,23 +35,28 @@ pub type Tag {
 pub type MinimalInfo {
 	MinimalInfo(
 		id: Int,
-		name: String
+		name: String,
+		localized_name: String
 	)
 }
 
 pub fn minimal_decoder() {
-	dynamic.decode2(
+	dynamic.decode3(
 		MinimalInfo,
 		dynamic.field("id", dynamic.int),
 		dynamic.field("name", dynamic.string),
+		dynamic.field("localizedName", dynamic.string),
 	)
 }
 
 pub fn recently_updated_decoder() {
-	dynamic.decode2(
+	dynamic.decode3(
 		MinimalInfo,
 		dynamic.field("seriesId", dynamic.int),
 		dynamic.field("seriesName", dynamic.string),
+		fn(_) {
+			Ok("")
+		}
 	)
 }
 

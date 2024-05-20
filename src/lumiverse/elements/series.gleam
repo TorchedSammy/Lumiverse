@@ -27,7 +27,7 @@ pub fn card(model: model.Model, srs: series.MinimalInfo) -> element.Element(layo
 
 	html.a([attribute.href("/series/" <> int.to_string(srs.id))], [
 		html.div([attribute.class("sm:w-48 w-24 space-y-2")], [
-			html.img([attribute.src(cover_url), attribute.class("rounded bg-zinc-800 w-full object-cover sm:h-72 h-44")]),
+			html.img([attribute.attribute("loading", "lazy"), attribute.src(cover_url), attribute.class("rounded bg-zinc-800 w-full object-cover sm:h-72 h-44")]),
 			html.div([attribute.class("font-medium text-xs md:text-base")], [element.text(srs.name)])
 		])
 	])

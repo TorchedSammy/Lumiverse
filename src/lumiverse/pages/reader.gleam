@@ -39,19 +39,21 @@ pub fn page(model: model.Model) -> element.Element(layout.Msg) {
 
 							html.div([], [
 								html.p([], [element.text(srs.name)]),
-								html.p([attribute.class("text-violet-600")], [element.text(srs.name)]),
+								html.p([attribute.class("text-violet-600")], [element.text(srs.localized_name)]),
 							])
 						}
 					},
-					html.div([attribute.class("grid grid-cols-2 gap-2 text-center")], case model.viewing_series, model.continue_point, model.chapter_info {
+					html.div([attribute.class("grid grid-cols-3 gap-2 text-center")], case model.viewing_series, model.continue_point, model.chapter_info {
 						option.Some(serie), option.Some(cont_point), option.Some(inf) -> {
 							[
+								html.span([attribute.class("bg-zinc-900 rounded py-0.5 px-1")], [element.text(inf.subtitle)]),
 								html.span([attribute.class("bg-zinc-900 rounded py-0.5 px-1")], [element.text("Page " <> int.to_string(progress.page_number + 1) <> " / " <> int.to_string(inf.pages))]),
 								html.span([attribute.class("bg-zinc-900 rounded py-0.5 px-1")], [element.text("Menu")]),
 							]
 						}
 						_, _, _ -> {
 							[
+								html.div([attribute.class("bg-zinc-900 animate-pulse h-7")], []),
 								html.div([attribute.class("bg-zinc-900 animate-pulse h-7")], []),
 								html.div([attribute.class("bg-zinc-900 animate-pulse h-7")], [])
 							]

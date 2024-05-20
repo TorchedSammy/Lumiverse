@@ -17,14 +17,6 @@ import lumiverse/model
 import lumiverse/layout
 import router
 
-fn minimal_decoder() {
-	dynamic.decode2(
-		series.MinimalInfo,
-		dynamic.field("id", dynamic.int),
-		dynamic.field("name", dynamic.string),
-	)
-}
-
 fn metadata_decoder() {
 	dynamic.decode6(
 		series.Metadata,
@@ -125,7 +117,7 @@ pub fn series(series_id: Int, token: String) {
 	|> request.set_header("Accept", "application/json")
 	|> request.set_header("Content-Type", "application/json")
 
-	lustre_http.send(req, lustre_http.expect_json(minimal_decoder(), layout.SeriesRetrieved))
+	lustre_http.send(req, lustre_http.expect_json(series.minimal_decoder(), layout.SeriesRetrieved))
 }
 
 pub fn metadata(series_id: Int, token: String) {
@@ -152,7 +144,7 @@ pub fn all(token: String, smart_filter: filter.SmartFilter) {
 	|> request.set_header("Content-Type", "application/json")
 
 	lustre_http.send(req, lustre_http.expect_json(fn(val) {
-		let decoder = dynamic.list(minimal_decoder())
+		let decoder = dynamic.list(series.minimal_decoder())
 		case decoder(val) {
 			Ok(serieses) -> Ok(#(smart_filter.for_dashboard, model.SeriesList(
 				idx: smart_filter.order,

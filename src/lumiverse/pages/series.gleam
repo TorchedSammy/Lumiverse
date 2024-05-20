@@ -52,7 +52,7 @@ fn real_page(model: model.Model) -> element.Element(layout.Msg) {
 						[
 							html.h1([
 								class("font-['Poppins'] font-extrabold text-xl sm:text-5xl")
-							], [element.text(srs.name)]),
+							], [element.text(srs.localized_name)]),
 							html.h2([
 								class("font-['Poppins'] font-medium sm:font-semibold text-lg sm:text-xl")
 							], [element.text(srs.name)]),
