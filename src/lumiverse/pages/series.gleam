@@ -94,7 +94,12 @@ fn real_page(model: model.Model) -> element.Element(layout.Msg) {
 							[
 								html.div([attribute.class("space-x-1")], [
 									html.span([
-										class("icon-circle text-publication-" <> series.publication_title(metadata.publication_status)),
+										class("align-middle icon-circle " <> case metadata.publication_status {
+											series.Ongoing -> "text-green-400"
+											series.Hiatus -> "text-orange-400"
+											series.Completed | series.Ended -> "text-sky-400"
+											series.Cancelled -> "text-red-400"
+										}),
 										attribute.attribute("data-publication", series.publication_title(metadata.publication_status))
 									], []),
 									html.span([], [
