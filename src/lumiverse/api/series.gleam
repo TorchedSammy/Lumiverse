@@ -35,6 +35,10 @@ fn dynamic_publication(from: dynamic.Dynamic) -> Result(series.Publication, List
 		Ok(num) -> case num {
 			// https://github.com/Kareadita/Kavita/blob/develop/API/Entities/Enums/PublicationStatus.cs
 			0 -> Ok(series.Ongoing)
+			1 -> Ok(series.Hiatus)
+			2 -> Ok(series.Completed)
+			3 -> Ok(series.Cancelled)
+			4 -> Ok(series.Ended)
 			_ -> Error([dynamic.DecodeError(
 				expected: "expected publicationStatus to be int of range 0-4",
 				found: "it wasnt?? lol",
