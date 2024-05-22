@@ -16,6 +16,7 @@ import lumiverse/elements/tag
 import lumiverse/elements/chapter
 import lumiverse/pages/not_found
 import router
+import tag_criteria
 
 import lumiverse/components/button.{button}
 
@@ -88,7 +89,7 @@ fn real_page(model: model.Model) -> element.Element(layout.Msg) {
 								let tags = list.append(list.map(metadata.tags, fn(t) {t.title}), list.map(metadata.genres, fn(t) {t.title}))
 								case list.length(tags) {
 									0 -> []
-									_ -> [tag.list(tags)]
+									_ -> [tag.list(list.sort(tags, tag_criteria.compare))]
 								}
 							},
 							[
