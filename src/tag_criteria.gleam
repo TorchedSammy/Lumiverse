@@ -2,6 +2,11 @@ import gleam/list
 import gleam/order
 import gleam/string
 
+pub const special = [
+	"doujinshi",
+	"uncensored"
+]
+
 // colored red
 pub const explicit = [
 	"hentai",
@@ -9,7 +14,8 @@ pub const explicit = [
 	"gore",
 	"adult",
 	"erotica",
-	"explicit-test-tag"
+	"explicit-test-tag",
+	"explicit-2-test-tag"
 ]
 
 // colored orange
@@ -20,17 +26,25 @@ pub const beware = [
 ]
 
 pub fn compare(a: String, b: String) -> order.Order {
-	let a_is_explicit = list.contains(explicit, string.lowercase(a))
-	let b_is_explicit = list.contains(explicit, string.lowercase(b))
-	
-	let a_is_beware = list.contains(beware, string.lowercase(a))
-	let b_is_beware = list.contains(beware, string.lowercase(b))
+	case compare_in_list(a, b, special) {
+		order.Eq -> case compare_in_list(a, b, explicit) {
+			order.Eq -> case compare_in_list(a, b, beware) {
+				order.Eq -> string.compare(a, b)
+				res -> res
+			}
+			res -> res
+		}
+		res -> res
+	}
+}
 
-	case a_is_explicit, b_is_explicit, a_is_beware, b_is_beware {
-		_, True, _, _ -> order.Gt
-		True, _, _, _ -> order.Lt
-		_, _, _, True -> order.Gt
-		_, _, True, _ -> order.Lt
-		_, _, _, _ -> string.compare(a, b)
+fn compare_in_list(a: String, b: String, lst: List(String)) -> order.Order {
+	let a_in_list = list.contains(lst, string.lowercase(a))
+	let b_in_list = list.contains(lst, string.lowercase(b))
+
+	case a_in_list, b_in_list {
+		True, False -> order.Lt
+		False, True -> order.Gt
+		_, _ -> order.Eq
 	}
 }
