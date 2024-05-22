@@ -40,7 +40,7 @@ fn real_page(model: model.Model) -> element.Element(layout.Msg) {
 					let cover_url = router.direct("/api/image/series-cover?seriesId=" <> int.to_string(srs.id) <> "&apiKey=" <> user.api_key)
 
 					html.div([class("max-w-64")], [
-						html.img([class("bg-zinc-800 rounded object-contain min-w-48 min-h-80"), attribute.src(cover_url)])
+						html.img([class("bg-zinc-800 rounded object-cover min-w-48 min-h-80"), attribute.src(cover_url)])
 					])
 				}
 				option.None -> html.div([class("bg-zinc-800 rounded animate-pulse h-80 w-48")], [])
