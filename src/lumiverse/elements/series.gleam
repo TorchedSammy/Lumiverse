@@ -35,7 +35,7 @@ pub fn card(model: model.Model, srs: series.MinimalInfo) -> element.Element(layo
 
 pub fn placeholder_card() {
 	html.div([attribute.class("space-y-4")], [
-		html.div([attribute.class("animate-pulse rounded-lg bg-zinc-800 w-48 h-72")], []),
+		html.div([attribute.class("animate-pulse rounded-lg bg-zinc-800 sm:w-48 w-24 h-72")], []),
 		html.div([attribute.class("animate-pulse rounded-none bg-zinc-800 w-full h-4")], []),
 		html.div([attribute.class("animate-pulse rounded-none bg-zinc-800 w-1/2 h-4")], [])
 	])
