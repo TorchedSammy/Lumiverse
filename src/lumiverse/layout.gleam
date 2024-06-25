@@ -28,6 +28,7 @@ pub type Msg {
 	// Auth
 	AuthPage(auth.Msg)
 	LoginGot(Result(auth.User, http.HttpError))
+	RefreshGot(Result(auth.Refresh, http.HttpError))
 
 	//Home
 	DashboardRetrieved(Result(List(stream.DashboardItem), http.HttpError))
@@ -62,7 +63,8 @@ pub fn nav(model: model.Model) {
 					attribute.class("self-center text-2xl font-bold dark:text-white")
 				], [
 					element.text("Lumiverse")
-				])
+				]),
+				html.div([attribute.class("self-center font-bold text-xs rounded py-0.5 px-1 bg-violet-600")], [element.text("Beta")])
 			]),
 			case model.user {
 				option.Some(user) -> html.div([], [

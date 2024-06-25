@@ -23,6 +23,14 @@ pub type User {
 	User(
 		username: String,
 		token: String,
+		refresh_token: String,
 		api_key: String
+	)
+}
+
+pub type Refresh {
+	Refresh(
+		token: String,
+		refresh_token: String
 	)
 }

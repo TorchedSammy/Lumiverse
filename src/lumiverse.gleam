@@ -152,7 +152,12 @@ fn update(model: model.Model, msg: layout.Msg) -> #(model.Model, Effect(layout.M
 		layout.Router(router.ChangeRoute(route)) -> {
 			#(model.Model(..model, route: route, viewing_series: option.None), route_effect(model, route))
 		}
-		layout.HealthCheck(Ok(Nil)) -> #(model.Model(..model, health_failed: option.Some(False)), route_effect(model, router_handler.uri_to_route(router_handler.get_route())))
+		layout.HealthCheck(Ok(Nil)) -> {
+			#(model.Model(..model, health_failed: option.Some(False)), effect.batch(list.append(case model.user {
+				option.Some(user) -> [api.refresh_auth(user.token, user.refresh_token)]
+				option.None -> []
+			}, [route_effect(model, router_handler.uri_to_route(router_handler.get_route()))])))
+		}
 		layout.HealthCheck(Error(_)) -> #(model.Model(..model, health_failed: option.Some(True)), effect.none())
 		layout.DashboardRetrieved(Ok(dashboard)) -> {
 			let assert option.Some(user) = model.user
@@ -297,6 +302,20 @@ fn update(model: model.Model, msg: layout.Msg) -> #(model.Model, Effect(layout.M
 			}
 
 			#(model, eff)
+		}
+		layout.RefreshGot(Ok(new_tok)) -> {
+			let assert option.Some(user) = model.user
+			#(model.Model(..model, user:
+				option.Some(auth_model.User(
+					..user,
+					token: new_tok.token,
+					refresh_token: new_tok.refresh_token
+				))
+			), effect.none())
+		}
+		layout.RefreshGot(Error(e)) -> {
+			io.debug(e)
+			#(model, effect.none())
 		}
 		layout.Read -> {
 			case model.user {

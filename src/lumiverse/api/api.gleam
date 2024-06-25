@@ -14,12 +14,33 @@ import lumiverse/models/auth
 import lumiverse/models/stream
 import lumiverse/layout
 
+// UPDATE BOTH
 fn decoder() {
-	dynamic.decode3(
+	dynamic.decode4(
 		auth.User,
 		dynamic.field("username", dynamic.string),
 		dynamic.field("token", dynamic.string),
+		dynamic.field("refreshToken", dynamic.string),
 		dynamic.field("apiKey", dynamic.string),
+	)
+}
+
+pub fn encode_login_json(user: auth.User) -> String {
+	json.object([
+		#("username", json.string(user.username)),
+		#("token", json.string(user.token)),
+		#("refreshToken", json.string(user.refresh_token)),
+		#("apiKey", json.string(user.api_key)),
+	])
+	|> json.to_string
+}
+// ^^ UPDATE BOTH
+
+fn refresh_decoder() {
+	dynamic.decode2(
+		auth.Refresh,
+		dynamic.field("token", dynamic.string),
+		dynamic.field("refreshToken", dynamic.string)
 	)
 }
 
@@ -33,17 +54,17 @@ pub fn login(username: String, password: String) {
 	lustre_http.post(router.direct("/api/account/login"), req_json, lustre_http.expect_json(decoder(), layout.LoginGot))
 }
 
-pub fn decode_login_json(jd: String) -> Result(auth.User, json.DecodeError) {
-	json.decode(jd, decoder())
+pub fn refresh_auth(token: String, refresh_token: String) {
+	let req_json = json.object([
+		#("token", json.string(token)),
+		#("refreshToken", json.string(refresh_token)),
+	])
+
+	lustre_http.post(router.direct("/api/account/refresh-token"), req_json, lustre_http.expect_json(refresh_decoder(), layout.RefreshGot))
 }
 
-pub fn encode_login_json(user: auth.User) -> String {
-	json.object([
-		#("username", json.string(user.username)),
-		#("token", json.string(user.token)),
-		#("apiKey", json.string(user.api_key)),
-	])
-	|> json.to_string
+pub fn decode_login_json(jd: String) -> Result(auth.User, json.DecodeError) {
+	json.decode(jd, decoder())
 }
 
 pub fn health() {
