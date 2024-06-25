@@ -17,10 +17,12 @@ pub fn list(tags: List(String))  -> element.Element(layout.Msg) {
 
 pub fn single(tag: String) -> element.Element(layout.Msg) {
 	html.div([attribute.class("rounded py-0.5 px-1 " <> {
+		let is_content_type = list.contains(tag_criteria.content_type, string.lowercase(tag))
 		let is_special = list.contains(tag_criteria.special, string.lowercase(tag))
 		let is_explicit = list.contains(tag_criteria.explicit, string.lowercase(tag))
 		let is_suggestive = list.contains(tag_criteria.beware, string.lowercase(tag))
 
+		use <- bool.guard(when: is_content_type, return: "bg-sky-500")
 		use <- bool.guard(when: is_special, return: "bg-emerald-500")
 		use <- bool.guard(when: is_explicit, return: "bg-red-500")
 		use <- bool.guard(when: is_suggestive, return: "bg-amber-500")

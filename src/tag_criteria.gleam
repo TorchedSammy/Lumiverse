@@ -2,6 +2,10 @@ import gleam/list
 import gleam/order
 import gleam/string
 
+pub const content_type = [
+	"artbook",
+]
+
 pub const special = [
 	"doujinshi",
 	"uncensored"
@@ -26,10 +30,13 @@ pub const beware = [
 ]
 
 pub fn compare(a: String, b: String) -> order.Order {
-	case compare_in_list(a, b, special) {
-		order.Eq -> case compare_in_list(a, b, explicit) {
-			order.Eq -> case compare_in_list(a, b, beware) {
-				order.Eq -> string.compare(a, b)
+	case compare_in_list(a, b, content_type) {
+		order.Eq -> case compare_in_list(a, b, special) {
+			order.Eq -> case compare_in_list(a, b, explicit) {
+				order.Eq -> case compare_in_list(a, b, beware) {
+					order.Eq -> string.compare(a, b)
+					res -> res
+				}
 				res -> res
 			}
 			res -> res
