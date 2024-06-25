@@ -204,9 +204,18 @@ fn update(model: model.Model, msg: layout.Msg) -> #(model.Model, Effect(layout.M
 					#(model.Model(..model,
 						home: model.HomeModel(
 							..model.home,
-							series_lists: list.unique(list.sort([series, ..model.home.series_lists], fn(list_a, list_b) {
-								int.compare(list_a.idx, list_b.idx)
-							})),
+							series_lists: {
+								case list.length(series.items) {
+									0 -> model.home.series_lists
+									_ ->  list.unique(list.sort([series, ..model.home.series_lists], fn(list_a, list_b) {
+										int.compare(list_a.idx, list_b.idx)
+									}))
+								}
+							},
+							dashboard_count: case list.length(series.items) {
+								0 -> model.home.dashboard_count - 1
+								_ -> model.home.dashboard_count
+							},
 							carousel_smalldata: series.items
 						),
 						series: new_series
