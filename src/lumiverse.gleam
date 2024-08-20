@@ -323,8 +323,17 @@ fn update(model: model.Model, msg: layout.Msg) -> #(model.Model, Effect(layout.M
 			), effect.none())
 		}
 		layout.RefreshGot(Error(e)) -> {
-			io.debug(e)
-			#(model, effect.none())
+			let eff = case e {
+				http.Unauthorized -> {
+					localstorage.remove("kavita_user")
+					router_handler.change_route("/login")
+				}
+				_ -> {
+					io.debug(e)
+					todo as "handle refresh error being something other than unauthorized"
+				}
+			}
+			#(model, eff)
 		}
 		layout.Read -> {
 			case model.user {
@@ -434,8 +443,6 @@ fn update(model: model.Model, msg: layout.Msg) -> #(model.Model, Effect(layout.M
 
 fn view(model: model.Model) -> Element(layout.Msg) {
 	case model.health_failed {
-		option.None -> splash.page()
-		option.Some(True) -> api_down.page()
 		option.Some(False) -> {
 			let page = case model.route {
 				router.Home -> home.page(model)
@@ -456,5 +463,7 @@ fn view(model: model.Model) -> Element(layout.Msg) {
 				])
 			}
 		}
+		option.Some(True) -> api_down.page()
+		option.None -> splash.page()
 	}
 }

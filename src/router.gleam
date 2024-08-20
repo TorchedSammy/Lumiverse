@@ -4,6 +4,8 @@ import gleam/option
 import gleam/uri
 import plinth/browser/window
 
+import lustre/effect
+import lumiverse/layout
 import lumiverse/common
 import lumiverse/models/router
 
@@ -40,6 +42,16 @@ pub fn direct(rel: String) -> String {
 	let assert Ok(rel_url) = uri.parse(rel)
 	let assert Ok(direction) = uri.merge(root_uri(), rel_url)
 	uri.to_string(direction)
+}
+
+pub fn change_route(rel: String) {
+	let assert Ok(rel_url) = uri.parse(rel)
+	let route = uri_to_route(rel_url)
+
+	effect.from(fn(dispatch) {
+		layout.Router(router.ChangeRoute(route))
+		|> dispatch
+	})
 }
 
 pub fn get_route() -> uri.Uri {
