@@ -1,8 +1,11 @@
+import gleam/bool
 import gleam/dict
+import gleam/dynamic
 import gleam/int
 import gleam/io
 import gleam/list
 import gleam/option
+import gleam/result
 import gleam/string
 
 import lustre/attribute
@@ -74,11 +77,30 @@ pub fn page(model: model.Model) -> element.Element(layout.Msg) {
 						#("right", "0"),
 						#("width", "50vw"),
 					])], []),
-				html.div([attribute.class("flex justify-center items-center h-screen")], [
-					html.img([attribute.class("h-screen object-contain"), attribute.id("reader-img"), attribute.src(page_image)])
-				])
+					html.div([attribute.class("flex justify-center items-center h-screen")], [
+						case model.reader_image_loaded {
+							True -> element.none()
+							False -> html.div([attribute.class("bg-zinc-800 h-screen w-1/2 animate-pulse object-contain absolute")], [])
+						},
+						html.img(list.append([
+							attribute.class("h-screen object-contain col-start-1 row-start-1 static"),
+							attribute.id("reader-img"),
+							attribute.src(page_image),
+							event.on("load", handle_load)
+						], case model.reader_image_loaded {
+							False -> [attribute.attribute("hidden", "")]
+							True -> []
+						})),
+					])
 			])
 		}
 	}
 }
 
+
+fn handle_load(event) {
+  event
+  |> dynamic.field("target", dynamic.dynamic)
+  |> result.then(dynamic.field("id", dynamic.string))
+  |> result.map(layout.ReaderImageLoaded)
+}

@@ -33,6 +33,7 @@ import lumiverse/models/router
 import lumiverse/models/stream
 import lumiverse/layout
 import lumiverse/pages/reader as reader_page
+import lumiverse/pages/all_page
 import lumiverse/pages/home
 import lumiverse/pages/series as series_page
 import lumiverse/pages/auth
@@ -79,6 +80,7 @@ fn init(_) {
 		series: dict.new(),
 		viewing_series: option.None,
 		reader_progress: option.None,
+		reader_image_loaded: False,
 		continue_point: option.None,
 		prev_chapter: option.None,
 		next_chapter: option.None,
@@ -344,6 +346,9 @@ fn update(model: model.Model, msg: layout.Msg) -> #(model.Model, Effect(layout.M
 				option.None -> todo as "decide what should be done if read is used while not logged in"
 			}
 		}
+		layout.ReaderImageLoaded(_) -> {
+			#(model.Model(..model, reader_image_loaded: True), effect.none())
+		}
 		layout.ReaderPrevious -> {
 			io.println("WAIT GO BACK")
 			let assert option.Some(current_progress) = model.reader_progress
@@ -379,11 +384,11 @@ fn update(model: model.Model, msg: layout.Msg) -> #(model.Model, Effect(layout.M
 						option.None -> uri.parse("/series/" <> int.to_string(current_progress.series_id))
 						option.Some(next_chapter) -> uri.parse("/chapter/" <> int.to_string(next_chapter))
 					}
-					#(model.Model(..model, reader_progress: option.None), modem.load(next_uri))
+					#(model.Model(..model, reader_progress: option.None, reader_image_loaded: False), modem.load(next_uri))
 				}
 				_ -> {
 					scroll_reader()
-					#(model.Model(..model, reader_progress: option.Some(advanced_progress)), reader.save_progress(user.token, advanced_progress))
+					#(model.Model(..model, reader_progress: option.Some(advanced_progress), reader_image_loaded: False), reader.save_progress(user.token, advanced_progress))
 				}
 			}
 		}
@@ -448,6 +453,7 @@ fn view(model: model.Model) -> Element(layout.Msg) {
 				router.Home -> home.page(model)
 				router.Login -> auth.login(model)
 				router.Logout -> auth.logout()
+				router.All -> all_page.page(model)
 				router.Series(id) -> series_page.page(model)
 				router.Reader(id) -> reader_page.page(model)
 				router.NotFound -> not_found.page()

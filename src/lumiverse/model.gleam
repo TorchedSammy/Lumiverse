@@ -19,6 +19,7 @@ pub type Model {
 		series: dict.Dict(Int, series.MinimalInfo),
 		viewing_series: option.Option(Result(series.MinimalInfo, http.HttpError)),
 		reader_progress: option.Option(reader.Progress),
+		reader_image_loaded: Bool,
 		continue_point: option.Option(reader.ContinuePoint),
 		prev_chapter: option.Option(Int),
 		next_chapter: option.Option(Int),

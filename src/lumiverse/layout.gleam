@@ -40,6 +40,7 @@ pub type Msg {
 	Read
 	ReaderPrevious
 	ReaderNext
+	ReaderImageLoaded(id: String)
 	ProgressUpdated(Result(Nil, http.HttpError))
 	ContinuePointRetrieved(Result(reader.ContinuePoint, http.HttpError))
 	ProgressRetrieved(Result(reader.Progress, http.HttpError))

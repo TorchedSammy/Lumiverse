@@ -2,6 +2,7 @@
 pub type Route {
 	Home
 	Login
+	All
 	Series(String)
 	NotFound
 	Logout
