@@ -22,6 +22,8 @@ import plinth/browser/element as plinth_element
 import localstorage
 import router as router_handler
 
+import lumiverse/config
+
 import lumiverse/api/api
 import lumiverse/api/reader
 import lumiverse/api/series as series_req
@@ -66,6 +68,16 @@ fn init(_) {
 		route: route,
 		health_failed: option.None,
 		user: user,
+		guest: case user,  config.guest_mode {
+			option.Some(user), True -> {
+				case user.username {
+					"guest" -> True
+					_ -> False
+				}
+			}
+			option.None, True -> True
+			_, _ -> False
+		},
 		auth: model.AuthModel(
 			auth_message: "",
 			user_details: auth_model.LoginDetails("", "")
@@ -86,6 +98,8 @@ fn init(_) {
 		next_chapter: option.None,
 		chapter_info: option.None
 	)
+
+	io.debug(model.guest)
 
 	#(model, effect.batch([modem.init(on_url_change), api.health()]))
 }
@@ -158,7 +172,12 @@ fn update(model: model.Model, msg: layout.Msg) -> #(model.Model, Effect(layout.M
 			#(model.Model(..model, health_failed: option.Some(False)), effect.batch(list.append(case model.user {
 				option.Some(user) -> [api.refresh_auth(user.token, user.refresh_token)]
 				option.None -> []
-			}, [route_effect(model, router_handler.uri_to_route(router_handler.get_route()))])))
+			},
+			list.append(case model.guest, model.user {
+				True, option.None -> [api.login("guest", "password")]
+				_, _ -> [effect.none()]
+			},
+			[route_effect(model, router_handler.uri_to_route(router_handler.get_route()))]))))
 		}
 		layout.HealthCheck(Error(_)) -> #(model.Model(..model, health_failed: option.Some(True)), effect.none())
 		layout.DashboardRetrieved(Ok(dashboard)) -> {

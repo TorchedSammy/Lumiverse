@@ -67,11 +67,11 @@ pub fn nav(model: model.Model) {
 				]),
 				html.div([attribute.class("self-center font-bold text-xs rounded py-0.5 px-1 bg-violet-600")], [element.text("Beta")])
 			]),
-			case model.user {
-				option.Some(user) -> html.div([], [
+			case model.guest, model.user {
+				False, option.Some(user) -> html.div([], [
 					button([button.md(), attribute.class("text-white")], [element.text(user.username)])
 				])
-				option.None -> html.a([attribute.href("/login")], [
+				_, _ -> html.a([attribute.href("/login")], [
 					button([button.solid(button.Neutral), button.md()], [element.text("Login")])
 				])
 			}

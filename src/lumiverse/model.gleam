@@ -13,6 +13,7 @@ pub type Model {
 		route: router.Route,
 		health_failed: option.Option(Bool),
 		user: option.Option(auth.User),
+		guest: Bool,
 		auth: AuthModel,
 		home: HomeModel,
 		metadatas: dict.Dict(Int, series.Metadata),
